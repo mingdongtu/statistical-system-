@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="/web/public/css/common.css">
+    <title>填报指标分配</title>
+    <style>
+        body{padding: 24px 20px;background: #f5f5f5;}
+        .selectItem{display: inline-block;}
+        .selectName{line-height: 44px;float: left;margin-right: 12px;}
+
+        .tableTitleWrap{padding: 32px 0 15px;border-bottom: 1px solid #eee;position: relative;}
+        .tableTitle{font-size: 16px;font-weight: bold;}
+        .titleBtnWrap{position: absolute;right: 0;bottom: 6px;}
+        .checkBoxLabel{line-height: 32px;display: inline-block;cursor: pointer;position: relative;}
+
+        #addIndex{margin-left: 20px;}
+        #save{margin-left: 10px;}
+
+        .tableUl>li{font-size: 16px;position: relative;padding: 5px 0 5px 35px;}
+        .pwrap{padding-bottom: 40px;}
+        .pwrap>li{border-bottom: 1px solid #eee;padding: 15px 0 15px 35px;float: none}
+        .pwrap>li>ul .checkBoxLabel{color: #999;font-size: 14px;}
+        .forHover{position: absolute;width: 100%;height: 62px;top: 0;left: 0;cursor: pointer;}
+        .forHover:hover{background: #f8f8f8;}
+        .itemArrow{width: 21px;height: 21px;background: url(/web/public/images/icon_04.png) no-repeat center;position: absolute;left: 0;top: 20px;}
+        .itemArrow.cue{background: url(/web/public/images/icon_03.png) no-repeat center;}
+        .tableUl .checkBox{margin-top: -4px;}
+
+        /*** 新增指标 ***/
+        .winWrap{position: fixed;left: 0;top: 0;width: 100%;height: 100%;z-index: 1000;display: none;}
+        .winbg{position: absolute;left: 0;right: 0;top: 0;bottom: 0;background: #000;opacity: 0.5;}
+        .popupWrap{position: absolute;left: 50%;top: 150px;margin-left: -260px;width: 520px;background: #fff;border-radius: 10px;border: 1px solid #ddd;}
+        .popHead{position: relative;border-bottom: 1px solid #eee;}
+        .popHead h4{font-size: 18px;text-align: center;font-weight: normal;line-height: 50px;}
+        .popClose{position: absolute;right: 16px;top: 16px;width: 20px;height: 20px;background: url(/web/public/images/icon_05.png) no-repeat center;}
+        .popCont{padding: 10px 24px 30px 24px;}
+        .popLeble{float: left;line-height: 44px;width: 70px;font-size: 16px;text-align: right;margin-right: 12px;}
+        #select_1,#select_2{width: 185px;}
+        #select_1 input,#select_2 input{width: 125px;}
+        #select_2{margin-left: 16px;display: none;}
+        #select_3{width: 320px;}
+        #select_3 input{width: 260px;}
+        .inputItem{margin: 0;}
+        #input_3{width: 300px;}
+        .popItem .checkBoxLabel{margin-top: 5px;color: #999;}
+        .popItem .checkBox{margin-top: -2px;}
+        #select_4,#select_7{width: 388px;}
+        #select_4 input,#select_7 input{width: 328px;}
+        #input_5,#input_6{width: 358px;}
+        .popSave{margin: 16px 0 0 82px;}
+        .popSave:active{background: #00a9e7;}
+    </style>
+</head>
+<body>
+<h2>填报指标分配</h2>
+<div class="main-tab">
+
+    <div class="searchGroup">
+        <div class="popItem">
+            <div class="selectItem" id="roleName">
+                <span class="selectName">角色名称</span>
+                <div class="selectWrap">
+                    <div>
+                        <input type="text" readonly="readonly" placeholder="请选择角色名称">
+                        <i></i>
+                    </div>
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tableTitleWrap">
+        <p class="tableTitle">填报指标分配</p>
+        <div class="titleBtnWrap">
+            <p class="checkBoxLabel fl"><i class="checkBox"></i>全选</p>
+            <a id="addIndex" class="whiteBtn btn-md" href="javascript:;">新增指标</a>
+            <a id="save" class="blueBtn btn-md" href="javascript:;">保&nbsp;存</a>
+        </div>
+    </div>
+    <ul class="tableUl pwrap"></ul>
+    <div class="clear"></div>
+</div>
+<!--模板.新增指标弹出框-->
+<div class="winWrap">
+    <i class="winbg"></i>
+    <div class="popupWrap">
+        <div class="popHead">
+            <h4>新增指标</h4>
+            <a class="popClose" href="javascript:;"></a>
+        </div>
+        <div class="popCont">
+            <div class="popItem">
+                <span class="popLeble">对应报表</span>
+                <div class="selectWrap" id="select_1">
+                    <div>
+                        <input type="text" readonly>
+                        <i></i>
+                    </div>
+                    <ul></ul>
+                </div>
+                <div class="selectWrap" id="select_2">
+                    <div>
+                        <input type="text" readonly>
+                        <i></i>
+                    </div>
+                    <ul></ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">指标名称</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入指标名称" id="input_3">
+                </div>
+                <p class="checkBoxLabel fr" id="daily"><i class="checkBox cue"></i>日报</p>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">指标类型</span>
+                <div class="selectWrap" id="select_4">
+                    <div>
+                        <input type="text" placeholder="请选择指标类型" id="input_4" readonly>
+                        <i></i>
+                    </div>
+                    <ul id="indexType">
+                        <li data-code="1">人工填报</li>
+                        <li data-code="2">系统统计</li>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem" style="display: none;">
+                <span class="popLeble">sql语句</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入sql语句" id="input_5">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">排序</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入排序" id="input_6">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">单位</span>
+                <div class="selectWrap" id="select_7">
+                    <div>
+                        <input type="text" placeholder="请选择指标单位" id="input_7" readonly>
+                        <i></i>
+                    </div>
+                    <ul id="indexUnit">
+                        <li>无</li>
+                        <li>元</li>
+                        <li>万元</li>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <a class="popSave blueBtn" href="javascript:;">保&nbsp;存</a>
+        </div>
+    </div>
+</div>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script>
+    var user = common.getUser();
+    var u_code = common.get_url_param('code');
+    var base_combox_list = [];
+    $(function(){
+
+        if(u_code){
+            getIndexData(u_code);
+        }
+
+        //切换角色
+        $(document).on('click', "#roleName li", function(){
+            var code = $(this).attr('data-code');
+            $('.titleBtnWrap').find('.checkBox').removeClass('cue');
+            getIndexData(code);
+        });
+
+        //获取角色名称下拉列表
+        $.ajax({
+            url: '/index.php/role/get_list',
+            type: 'post',
+            dataType: 'json',
+            success: function(res){
+                if(res.errcode == 0){
+                    var html = '';
+                    for(var i = 0; i < res.data.length; i++){
+                        html += '<li data-code="' + res.data[i].code +'">' + res.data[i].name +'</li>';
+                    }
+                    $("#roleName").find('ul').html(html).find('li').click(function(){
+                        var text = $(this).text();
+                        $(this).closest(".selectWrap").find('input').val(text);
+                    });
+                    if(u_code){
+                        $("#roleName").find('li[data-code="' + u_code + '"]').trigger('click');
+                    }
+                }else{
+                    common.mytips(res.errmsg);
+                }
+            }
+        });
+
+        //获取新增指标下拉列表
+        $.ajax({
+            url: '/index.php/report/base_combox_list',
+            type: 'post',
+            dataType: 'json',
+            success: function(res){
+                if(res.errcode == 0){
+                    base_combox_list = res.data;
+                    var list = '';
+                    for(var i in res.data){
+                        list += '<li data-code="' + res.data[i].code + '">' + res.data[i].name + '</li>';
+                    }
+                    $('#select_1').find('input').val(res.data[0].name).attr('data-code', res.data[0].code);
+                    $('#select_1').find('ul').html(list);
+                }else{
+                    common.mytips(res.errmsg);
+                }
+            }
+        });
+
+        //选择复选框
+        $(document).on('click', '.checkBoxLabel', function(e){
+            $(this).children('.checkBox').trigger('click');
+            e.stopPropagation();
+        });
+
+        //切换指标列表
+        $(document).on('click', '.itemArrow', function(){
+            if($(this).hasClass('cue')){
+                $(this).removeClass('cue').nextAll('.tableUl').slideUp();
+            }else{
+                $(this).addClass('cue').nextAll('.tableUl').slideDown();
+            }
+        }).on('click', '.forHover', function(){
+            $(this).next().trigger('click');
+        });
+
+        //切换下拉框
+        $(document).on('click', '.selectWrap li', function(){
+            var text = $(this).text();
+            var code = $(this).attr('data-code');
+            $(this).closest(".selectWrap").find('input').val(text);
+            if(code) $(this).closest(".selectWrap").find('input').attr('data-code', code);
+        });
+        //选择新增指标对应报表
+        $(document).on('click', '#select_1 li', function(){
+            var code = $(this).attr('data-code');
+            for(var i in base_combox_list){
+                if(base_combox_list[i].code == code){
+                    if(base_combox_list[i].children.length > 0){
+                        $("#select_2").show().find('input').val(base_combox_list[i].children[0].name).attr('data-code', base_combox_list[i].children[0].code);
+                        var childrenList = '';
+                        for(var j in base_combox_list[i].children){
+                            childrenList += '<li data-code="' + base_combox_list[i].children[j].code + '">' + base_combox_list[i].children[j].name + '</li>';
+                        }
+                        $("#select_2").find('ul').html(childrenList);
+                    }else{
+                        $("#select_2").hide().find('input').val('').removeAttr('data-code');
+                    }
+                }
+            }
+            $(this).closest(".selectWrap").find('input').attr('data-code', code);
+        });
+
+        //新增指标按钮
+        $("#addIndex").click(function(){
+            $(".winWrap").show();
+        });
+
+        //弹出框删除按钮
+        $(document).on('click', '.popClose', function(){
+            $(this).parents('.winWrap').hide();
+        });
+
+        //选择指标类型（隐藏或显示sql语句输入框）
+        $(document).on('click', '#indexType li', function(){
+            var code = $(this).attr('data-code');
+            if(code == 2){
+                $("#input_5").parents('.popItem').slideDown();
+            }else if(code == 1){
+                $("#input_5").parents('.popItem').slideUp();
+            }
+        });
+
+        //全选
+        $(document).on('click', '.titleBtnWrap .checkBox', function(){
+            if($(this).hasClass('cue')){
+                $(".tableUl").find('.checkBox').addClass('cue');
+            }else{
+                $(".tableUl").find('.checkBox').removeClass('cue');
+            }
+        });
+
+        //表格复选框父子元素联动
+        $(document).on('click', '.tableUl .checkBox', function(){
+            //选择子元素
+            if($(this).hasClass('cue')){
+                $(this).parent().nextAll('.tableUl').find('.checkBox').addClass('cue');
+            }else{
+                $(this).parent().nextAll('.tableUl').find('.checkBox').removeClass('cue');
+            }
+            //选择父元素
+            if($(this).closest('.tableUl').children('li').find('.checkBox.cue').length > 0){
+                $(this).closest('.tableUl').parents('li').children('.checkBoxLabel').children('.checkBox').addClass('cue');
+            }else{
+                $(this).closest('.tableUl').parents('li').each(function(){
+                    if($(this).children('.tableUl').find('.checkBox.cue').length == 0){
+                        $(this).children('.checkBoxLabel').children('.checkBox').removeClass('cue');
+                    }
+                });
+            }
+        });
+
+        //保存指标分配
+        $('#save').click(function(){
+            var code = $("#roleName").find('input').attr('data-code');
+            var input_item_list = '';
+            var objs = $('.pwrap').find('.checkBox.cue');
+            for(var i = 0; i < objs.length; i++){
+                input_item_list += objs.eq(i).parent().attr('data-code');
+                if(i != objs.length-1) input_item_list += ',';
+            }
+            $.ajax({
+                url: '/index.php/role/update_items',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    code: code,
+                    input_item_list: input_item_list
+                },
+                success: function(res){
+                    if(res.errcode==0){
+                        location.replace('role_list.html');
+                    }else{
+                        common.mytips(res.errmsg);
+                    }
+                }
+            });
+        });
+
+        //保存新增指标
+        $('.popSave').click(function(){
+            var
+                    report_id = $('#select_1').find('input').attr('data-code'),
+                    report_child_id = $('#select_2').find('input').attr('data-code'),
+                    item_name = $('#input_3').val(),
+                    item_type = $('#select_4').find('input').attr('data-code'),
+                    item_sort = $('#input_6').val(),
+                    is_daily = $("#daily").find('i').hasClass('cue') ? 1 : 0,
+                    item_sql = $('#input_5').closest('.popItem').is(':hidden') ? '' : $('#input_5').val(),
+                    item_unit = $('#input_7').val();
+
+            //必填
+            if(! report_id){
+                common.mytips('请选择对应报表');
+                return false;
+            }
+            if(! $('#select_2').is(':hidden') && !report_child_id){
+                common.mytips('请选择对应报表');
+                return false;
+            }
+            if(! item_type){
+                common.mytips('请选择指标类型');
+                return false;
+            }
+            if(! item_name){
+                common.mytips('请填写指标名称');
+                return false;
+            }
+
+            $.ajax({
+                url: '/index.php/indicator/item_add',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    report_id: report_id,
+                    report_child_id: report_child_id,
+                    item_name: item_name,
+                    item_type: item_type,
+                    item_sort: item_sort,
+                    is_daily: is_daily,
+                    item_sql: item_sql,
+                    item_unit: item_unit
+                },
+                success: function(res){
+                    if(res.errcode==0){
+                        common.mytips('新增成功');
+                        $('.winWrap').hide();
+
+                        //初始化新增指标输入框数据
+                        $("#select_1").find('li').eq(0).trigger('click');
+                        $("#input_3,#input_4,#input_5,#input_6").val('').removeAttr('data-code');
+                    }else{
+                        common.mytips(res.errmsg);
+                    }
+                }
+            });
+        });
+
+        //获取填报指标分配数据
+        function getIndexData(code){
+            $.ajax({
+                url: '/index.php/role/get_indicator_info',
+                type: 'post',
+                dataType: 'json',
+                data: {code: code},
+                success: function(res){
+                    if(res.errcode==0){
+                        var list = '', children;
+                        for(var i = 0; i < res.data.input_items.length; i++){
+                            list += '<li>' +
+                            '<div class="forHover"></div>' +
+                            '<a href="javascript:;" class="itemArrow cue"></a>' +
+                            '<p class="checkBoxLabel" data-code="' + res.data.input_items[i].code + '"><i class="checkBox' + (res.data.input_items[i].checked==1 ? ' cue' : '') + '"></i>' + res.data.input_items[i].name + '</p>';
+                            if(res.data.input_items[i].children){
+                                list += '<ul class="tableUl">';
+                                for(var j = 0; j < res.data.input_items[i].children.length; j++){
+                                    children = res.data.input_items[i].children[j].children;
+                                    list += '<li class="' + (res.data.input_items[i].children[j].is_zb==0 ? 'clearfix' : 'fl') + '"><p class="checkBoxLabel" data-code="' + res.data.input_items[i].children[j].code + '">' +
+                                    '<i class="checkBox' + (res.data.input_items[i].children[j].checked==1 ? ' cue' : '') + '"></i>' + res.data.input_items[i].children[j].name + '</p>';
+                                    if(children){
+                                        list += '<ul class="tableUl">';
+                                        for(var x = 0; x < children.length; x++){
+                                            list += '<li class="fl"><p class="checkBoxLabel" data-code="' + children[x].code + '">' +
+                                            '<i class="checkBox' + (children[x].checked==1 ? ' cue' : '') + '"></i>' + children[x].name + '</p>';
+                                        }
+                                        list += '</ul>';
+                                    }
+                                    list += '</li>';
+                                }
+                                list += '</ul>';
+                            }
+                            list += '<div class="clear"></div></li>';
+                        }
+                        $('.pwrap').html(list);
+                    }else{
+                        common.mytips(res.errmsg);
+                    }
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

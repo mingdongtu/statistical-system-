@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link rel="stylesheet" href="/web/public/css/common.css">
+	<title>友德医用户端后台管理系统</title>
+	<style>
+		.header{position: relative;}
+		h1{line-height: 64px;color: #fff;font-size: 20px;margin-left: 240px;display: inline-block;color:#0066cc;font-weight:bold;}
+		.welcome{color: #999999;position: absolute;right: 0;top: 0;width:366px;}
+		.welcome span{}
+		#exit{display: inline-block;width: 70px;margin-left: 16px;color:#999999;position:absolute;right:0px;top:35px;}
+		/*.p-nav-li{border-left: 3px solid transparent;}*/
+		/*.p-nav-li.cue{border-color: #00b2f4;}*/
+		.p-nav-a{display: block;padding-left: 35px;color: #666;font-size: 16px;line-height: 42px;position: relative;margin-left: 1px;}
+		.p-nav-a:hover{color: #00b2f4;}
+		.p-nav-a:hover span{background-position: bottom;}
+		.p-nav-a span{position: absolute;top: 14px;left: 10px;width: 16px;height: 16px;}
+		.p-nav-a i{position: absolute;top: 16px; right: 20px;width: 0;height: 0;border-top: 5px solid transparent;border-left: 5px solid #bbb;border-bottom: 5px solid transparent;}
+		.p-nav-li.cue .p-nav-a{color: #00b2f4;font-size: 16px;}
+		.p-nav-li.cue .p-nav-a i{border-top: 5px solid #bbb;border-left: 5px solid transparent;border-right: 5px solid transparent;top: 18px;}
+		.p-nav-li.cue .p-nav-a span{background-position: bottom;}
+		.c-nav{display: none;}
+		.c-nav-a{display: block;font-size: 14px;color: #999;margin-left: 1px;padding-left: 40px;line-height: 36px;}
+		.c-nav-a:hover{background: #0099cc;}
+		.c-nav-li.cue .c-nav-a{color: #00b2f4;}
+
+		.contWrap{position: absolute;left: 220px;right: 0;top: 64px;bottom: 0;overflow-y: hidden;min-width: 780px;background: #f5f5f5; min-height: 500px; overflow: hidden;}
+		#contIframe{border: none; width: 100%; outline: none;height: 100%;min-height: 500px;}
+
+		.icon01{background: url(/web/public/images/nav_01.png) no-repeat;}
+		.icon02{background: url(/web/public/images/nav_02.png) no-repeat;}
+		.icon03{background: url(/web/public/images/nav_03.png) no-repeat;}
+		.icon04{background: url(/web/public/images/nav_04.png) no-repeat;}
+		.icon06{background: url(/web/public/images/nav_05.png) no-repeat;}
+		.icon07{background: url(/web/public/images/nav_05.png) no-repeat;}
+		.icon08{background: url(/web/public/images/nav_05.png) no-repeat;}
+		.icon09{background: url(/web/public/images/nav_05.png) no-repeat;}
+		.icon010{background: url(/web/public/images/nav_05.png) no-repeat;}
+		.icon011{background: url(/web/public/images/nav_05.png) no-repeat;}
+		.icon012{background: url(/web/public/images/nav_05.png) no-repeat;}
+		.icon013{background: url(/web/public/images/nav_05.png) no-repeat;}
+		.icon014{background: url(/web/public/images/nav_05.png) no-repeat;}
+       ul{background:#0066cc;}
+	   #sys_role_menu_ul{height:910px;z-index:-1000;}
+		#sys_role_menu_ul a{color:#ccc;}
+		#sys_role_menu_ul a:hover{color:#fff;}
+		.logo_img{width:160px;height:44px;position:absolute;top:50%;margin-top:-22px;left:26px;}
+		.user_msg{display: inline-block;height:45px;margin-top:16px;margin-right:40px;}
+		.user_msg>span{
+		}
+		.user_img{width:44px;height:44px;display:inline-block;margin-right:10px;}
+		.welcome_msg{display:inline-block;}
+		.welcome_msg>span{
+			display:block;
+		}
+		.welcome_msg>a,#ch{color:#0066cc;}
+		.icon_img{display:inline-block;
+			position:absolute;}
+		.icon_img:nth-of-type(1),.icon_img:nth-of-type(5){width:14px;height:16px;margin-top:-8px;left:11px;top:21px;}
+		.icon_img:nth-of-type(2){width:18px;height:18px;left:11px;}
+		.icon_img:nth-of-type(3){width:15px;height:15px;left:14px;}
+		.icon_img:nth-of-type(4){width:15px;height:15px;left:14px;}
+		.icon_img:nth-of-type(6){width:17px;height:17px;left:12px;}
+		.icon_img:nth-of-type(7){width:17px;height:16px;left:12px;}
+		.p-nav-li{
+			position: relative;
+			width:200px;
+    margin-left:10px;
+			border-radius:3px;
+		}
+		.p-nav-li:hover{
+			/*background:#0099cc;*/
+			/*color:#fff;*/
+		}
+
+		.list_no{
+			width:6px;
+			height:11px;
+			position:absolute;
+			left:180px;top:15px;
+			/*display:none;*/
+		}
+		/*.list_no{}*/
+		.list_down{width:11px;
+			height:6px;
+			position:absolute;
+			left:180px;top:15px;
+			display:none;
+		}
+		.list_no_1{display:none}
+		.list_down_1{display:inline-block;}
+		.admin_name{
+			color:#0066cc;
+		}
+		.p-nav-li_1{position:relative;display:inline-block;}
+		.left_slide{
+			position: absolute;
+			width:19px;height:17px;left: 178px;
+			top: 11px;}
+		.list_no:hover,.list_down:hover{
+			cursor: pointer;
+		}
+		.gray{
+			display:inline-block;
+			position:absolute;
+			left:0px;
+			top:0px;
+			width:200px;
+			height:50px;
+			-webkit-border-radius: 3px;
+			-moz-border-radius: 3px;
+			border-radius: 3px;
+			background:#37404c;
+			/*z-index: 11;*/
+
+		}
+		.fix_code{
+			position:absolute;
+			bottom:9px;
+			right:93px;
+		}
+	</style>
+</head>
+<body>
+<div class="header">
+	<img src="/web/public/images/logo.png" alt="" class="logo_img">
+	<h1>友德医用户端运营管理系统</h1>
+	<div class="welcome">
+		<div  class="user_msg">
+			<img src="/web/public/images/user.png" alt=""  class="user_img">
+			<div  class="welcome_msg">
+				<span>欢迎您，<a href="javascript:;"  class="admin_name"></a></span>
+				<span id="we"></span>
+			</div>
+
+		</div>
+		<a style="cursor:pointer;"  class="fix_code"><span id="ch"></span></a>
+		<a id="exit" href="javascript:;">退出系统</a>
+	</div>
+</div>
+<div class="navWrap">
+	<ul id="sys_role_menu_ul" class="p-nav">
+	</ul>
+</div>
+<div class="contWrap">
+	<iframe id="contIframe" src="/web/html/tab/default.html" frameborder="no" scrolling="yes"></iframe>
+</div>
+
+<script type="text/html" id="tpl_menu">
+	<li class="p-nav-li p-nav-li_1 ">
+		<a class="p-nav-a first-index" href="javascript:;"> <span class="icon04"></span> 首页 </a>
+		<!--<img src="/web/public/images/left_slide.png" alt=""   class="left_slide" >-->
+		<ul> <li class="c-nav-li" style="display:none;"> <a class="c-nav-a" href="tab/default.html"> 首页 </a> </li> </ul>
+	</li>
+	<% for( var i in list ){ %>
+		<li class="p-nav-li">
+			<img src="<%=list[i].img %>" alt=""  class="icon_img">
+			<a class="p-nav-a first-index" href="javascript:;"> <%=list[i].name%> </a>
+			<img src="/web/public/images/list_no.png" alt=""  class="list_no list_common">
+			<img src="/web/public/images/list_down.png" alt=""  class="list_down list_common">
+			<!--鼠标移入时产生的阴影效果-->
+			<!--<span class="gray"></span>-->
+			<% if( typeof list[i].children != 'undefined' ){ %>
+			<ul class="c-nav">
+				<% for( var j in list[i].children){ %>
+					<li class="c-nav-li"> <a class="c-nav-a" href="<%=list[i].children[j].uri%>"><%=list[i].children[j].name%></a></li>
+				<% } %>
+			</ul>
+			<% } %>
+		</li>
+	<% } %>
+</script>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script type="text/javascript" src="/web/public/js/lib/template.js"></script>
+<script>
+	var user = common.getUser();
+	$(function(){
+		//显示用户名字
+		$('.welcome').find('#we').text( '当前身份：'+ sessionStorage.role_name );
+		$('.welcome').find('#ch').text(' 修改密码');
+		$(".admin_name").text(sessionStorage.name)
+		//退出按钮
+		$("#ch").click(function(){
+			$("#contIframe").attr('src', 'member/reset_pwd.html?id='+sessionStorage.id);
+		})
+		$("#exit").click(function()
+		{
+			common.confirm( '您确认退出登录吗？' ,function()
+			{
+				$.ajax({
+					url			: '/index.php/admin/logout',
+					type		: 'post',
+					dataType	: 'json',
+					success	: function( res )
+					{
+						if( res.errcode == 0 )
+						{
+							sessionStorage.removeItem( 'id' );
+							sessionStorage.removeItem( 'name' );
+							sessionStorage.removeItem( 'role_name' );
+							location.href = '/web/html/login.html'
+						}
+						else
+						{
+							common.mytips( res.errmsg );
+						}
+					}
+				});
+			});
+		});
+
+		$.ajax({
+			url			: '/index.php/admin/get_power_list',
+			type		: 'post',
+			dataType	: 'json',
+			data		: { code:'' },
+			success		: function( res )
+			{
+				if( res.errcode == 0 )   //将数据发送到视图层
+				{
+            //数据渲染前对其进行改造，添加图标
+					var data=res.data
+					for(var key in data){
+					       if(key=='002'){
+					             data[key].img='/web/public/images/list_1.png'
+						   }else if(key=='003'){
+                               data[key].img='/web/public/images/list_2.png'
+						   }else if(key=='006'){
+                               data[key].img='/web/public/images/list_3.png'
+                           }else if(key=='007'){
+                               data[key].img='/web/public/images/list_4.png'
+                           }else if(key=='005'){
+                               data[key].img='/web/public/images/list_5.png'
+                           }else if(key=='004'){
+                               data[key].img='/web/public/images/list_6.png'
+                           }else if(key=='001'){
+                               data[key].img='/web/public/images/list_7.png'
+                           }
+					}
+					$("#sys_role_menu_ul").T( '#tpl_menu', { list: data } );
+
+					// 绑定点击事件
+					// 切换主导航
+					$('.p-nav-a').click(function(){
+						if(! $(this).parent().hasClass('cue')){
+							$(".c-nav").slideUp();
+							$(".list_no").removeClass('list_no_1')
+                            $(".list_down").removeClass('list_down_1')
+                            $($(this).siblings('img')[1]).addClass('list_no_1')
+                            $($(this).siblings('img')[2]).addClass('list_down_1')
+							$(this).parent().addClass('cue').siblings().removeClass('cue');
+							$(this).parent().find(".c-nav").slideDown();
+						}else{
+                            $(this).parent().removeClass('cue')
+                            $(this).parent().find(".c-nav").slideUp();
+                            $($(this).siblings('img')[1]).removeClass('list_no_1')
+                            $($(this).siblings('img')[2]).removeClass('list_down_1')
+						}
+//						$(".c-nav-li").removeClass('cue');
+					});
+                    $(".list_common").click(function () {
+                        $(this).siblings('.p-nav-a').trigger('click')
+                    })
+
+					// 切换子导航
+					$(".c-nav-a").click(function(){
+						$(".c-nav-li").removeClass('cue');
+						$(this).parent().addClass('cue')
+					});
+
+					// 切换iframe内页面
+					$(".p-nav").find('a').click(function(e){
+						if( $(this).hasClass('first-index') ){
+							$(this).next().find('a').eq(0).click();
+							return false;
+						}
+						var url = $(this).attr('href');
+						$("#contIframe").attr('src', url);
+						e.stopPropagation();
+						return false;
+					});
+				}else{
+					common.mytips(res.errmsg);
+				}
+			}
+		});
+	});
+</script>
+</body>
+</html>

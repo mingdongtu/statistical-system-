@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>积分规则管理</title>
+<script type="text/javascript" src="/web/public/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script type="text/javascript" src="/web/public/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="/web/public/js/pagination.js"></script>
+<link rel="stylesheet" href="/web/public/css/common_h.css">
+<link rel="stylesheet" href="/web/public/css/info.css">
+<link href="/web/public/css/common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+.two_nav { border-top:2px solid #63b841;background:#eceef3; height:38px; font-size:16px; margin-bottom:15px;}
+.two_nav ul { overflow:hidden;}
+.two_nav ul li { padding:5px 0; line-height:28px; position:relative; left:-1px; float:left;}
+.two_nav ul li.cur { background:#63b841;}
+.two_nav ul li.cur a { color:#fff;border-left:1px solid #63b841;}
+.two_nav ul li a { border-left:1px solid #dcdcdc; display:block; padding:0 20px;}
+.card_dl { padding-top:20px;}
+.card_dl dl {padding-bottom:20px;}
+.card_dl dl dt { width:150px; text-align:right; line-height:42px; float:left;}
+.card_dl dl dd { float:left;}
+.card_btn { padding-left:150px; padding-top:10px;}
+.card_btn a { display:block;}
+.w400 { width:400px;}
+.text_w1 { width:600px; height:60px;}
+.text_w2 { width:600px; height:140px;}
+.text_w3 { width:600px; height:240px;}
+.optionbox .sel_w1 { width:134px;}
+.optionbox .sel_w1 ul { right:0;}
+.opt_two { width:100%; padding-top:10px; clear:both;}
+.boder_tab tr th { border:1px solid #e2e2e2;}
+.boder_tab tr td { padding:5px;}
+.boder_tab a{ margin:0 5px;}
+.btn120 { display:inline-block; *display:inline;*zoom:1;}
+.table_box tr td { padding:5px;}
+.btn_pd { display:inline-block; *display:inline;*zoom:1; padding:0 10px;}
+.modify_box .tab-min tr th{ height:35px; font-weight:normal; font-size:14px;}
+.modify_box .tab-min tr td{ height:32px;}
+.table_box tr td {
+    height: 38px;
+    border-bottom: 1px solid #e2e2e2;
+    text-align: center;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+</style>
+</head>
+
+<body>
+<div class="main_box">
+	<h2 class="title">积分规则管理</h2>
+    <div class="optionbox c">
+        <a class="button_blue ml10 btn_pd" href="point_add.html">添加积分规则</a>
+    </div>
+    
+    <table id="table" width="100%" border="0" align="center" class="table_box boder_tab mt20" cellpadding="0" cellspacing="0">
+    	<thead id="thead_str">
+			<tr>
+            	<th width="10%">积分规则名称</th>
+                <th width="10%">积分</th>
+                <th width="30%">积分规则说明</th>
+                <th width="15%">是否启用</th>
+                <th width="10%">操作时间</th>
+                <th width="10%">操作人</th>
+                <th width="15%">操作</th>
+            </tr>
+        </thead>
+        <tbody id="remind_list">
+			
+           
+        </tbody>
+    </table>
+    <div class="page-box">   
+    </div>
+   
+   
+   
+    
+</div>
+<script language="javascript">
+$(function() {
+	$(".main_box").on("click", ".px_a", function() {
+		$(".px_a").not($(this)).removeClass("up dw");
+		if($(this).hasClass("dw")){
+			$(this).removeClass("dw").addClass("up");             
+		}else{
+			$(this).removeClass("up").addClass("dw");                
+		}
+	});
+	$("#table").on("mouseenter",".nr_td",function(){
+		var $shbox = $(this).find(".nr_box");
+		if($shbox.length){
+		$(this).css({"z-index":"220","position":"relative"});
+		$shbox.css({"z-index":"221","position":"absolute"});
+		$shbox.show();
+		var height = $shbox.height();
+		var top = $shbox.offset().top;
+		var winheight = $(window).height();
+		var h=top+height;
+		if(h>winheight && height<top){
+			$shbox.css({"top":"auto","bottom":"0"});
+		}
+		}
+	});
+	$("#table").on("mouseleave",".nr_td",function(){
+		$(this).css({"z-index":"","position":"static"});
+		$(this).find(".nr_box").css({"z-index":"","position":"static"});
+		$(this).find(".nr_box").hide();
+	});
+	
+	code_list(1)
+});
+function search_code(){
+	code_list(1)
+}
+function del_partner(obj,id){
+	result = common.mydialogtwo(obj);
+	if(result != true){
+		return false;
+	}
+	common.mytips("该合作伙伴已经删除成功")
+}
+function code_list(page){
+    //获取相应的值
+	//时间
+	var start_time=$("#sdate").val()
+	var end_time=$("#edate").val()
+	//合作伙伴
+	var partner_name=$("#search_partner_name").val();
+	var data = {
+			'page_size':10,
+			'page':page,
+			};
+    var url = hms_host + 'index.php/point/point_model';
+	    $.ajax({
+			type:'post',
+			dataType:'json',
+			url:url,
+			data:data,
+			success:function(json){
+				if(json.errcode == 0){
+					  var data=json.data;
+					  var html='';
+					if(data.length>0){
+						for(var i = 0; i<data.length; i++){
+							var msg = data[i]['msg'];
+							var msgs = common.suolve(msg,"80");
+							if(msgs != msg){
+								msg = '<div class="nr_td">'+msgs+'<div class="nr_box">'+msg+'</div></div>';
+							}
+							html+='<tr>'
+							html+='<td>'+data[i]['points_name']+'</td>'
+							html+='<td>'+data[i]['points_num']+'</td>'
+							html+='<td>'+data[i]['points_desc']+'</td>'
+							html+='<td>'+data[i]['points_status']+'</td>'
+							html+='<td>'+data[i]['points_utime']+'</td>'
+							html+='<td>'+data[i]['name']+'</td>'
+							html+='<td>'
+							html+='<a href="point_add.html?id='+data[i]['points_id']+'" class="green_a">编辑</a>|<a onclick="del_model('+data[i]['points_id']+')" href="javascript:void(0)" class="green_a">删除</a>'
+							html+='</td> ' 
+							html+='</tr>' 	
+								
+						} 
+						$("#remind_list").html(html);
+						//$.pagination.init($(".page-box"), code_list, json.total,10, page,true);
+						$.pagination.init($(".page-box"), code_list, json.total, json.page_size, page, true);
+					}else{
+					     html += '<tr><td colspan="8" align="center">暂无数据</td></tr>';
+					    $("#remind_list").html(html);
+						$.pagination.init($(".page-box"), code_list,0);
+					}
+				}
+			},
+			 
+		});
+}  
+
+//更新状态
+function update(id){
+	var status = $("#confirm_tip_"+id).attr('data-status');
+	var txt = status == 1 ? '停用' : '启用';
+    var result = common.mydialogtwo($("#confirm_tip_"+id),"<p>你确定要" + txt + "该条数据吗</p>", txt);
+			if(result != true){
+				return false;
+			}
+			var data = {'url':hms_host + 'index.php/partner_code/update_status', 'async':false, 'id':id, 'status':status};
+			common.ajax(data, function(json){
+				common.mytips(json.errmsg);
+				if (json.errcode==0){
+					setTimeout(function(){code_list(1);}, 3000);
+				}
+			},'json');
+
+
+}
+function del_model(id){
+   var data = {'url':hms_host + 'index.php/point/del_model', 'async':false, 'id':id,};
+   common.confirm('确定删除吗？',function(){
+	common.ajax(data, function(json){
+		common.mytips(json.errmsg);
+		if (json.errcode==0){
+			setTimeout(function(){code_list(1);}, 1000);
+			}
+		},'json');
+		});
+	}
+</script>
+</body>
+</html>

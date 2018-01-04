@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="/web/public/css/common.css">
+    <title>统计指标列表</title>
+    <style>
+        body{padding: 24px 20px;background: #f5f5f5;}
+
+        #search{display: inline-block;width: 90px;height:36px;color: #fff;font-size: 14px;background: #00b2f4;text-align: center;border-radius: 3px;margin-left: 15px;border: none;cursor: pointer;}
+        #search:active{background: #00a9e7;}
+        .selectWrap {float: left;}
+        .checkBoxLabel{cursor: pointer;}
+
+        /*** 编辑指标 ***/
+        .winWrap{position: fixed;left: 0;top: 0;width: 100%;height: 100%;z-index: 1000;display: none;}
+        .winbg{position: absolute;left: 0;right: 0;top: 0;bottom: 0;background: #000;opacity: 0.5;}
+        .popupWrap{position: absolute;left: 50%;top: 150px;margin-left: -260px;width: 520px;background: #fff;border-radius: 10px;border: 1px solid #ddd;}
+        .popHead{position: relative;border-bottom: 1px solid #eee;}
+        .popHead h4{font-size: 18px;text-align: center;font-weight: normal;line-height: 50px;}
+        .popClose{position: absolute;right: 16px;top: 16px;width: 20px;height: 20px;background: url(/web/public/images/icon_05.png) no-repeat center;}
+        .popCont{padding: 10px 24px 30px 24px;}
+
+        .popLeble{float: left;line-height: 36px;width: 70px;font-size: 14px;text-align: right;margin-right: 12px;}
+        .j_sel_1,.j_sel_2{width: 185px;}
+        .j_sel_2{margin-left: 16px;display: none;}
+        #select_3{width: 320px;}
+        #select_3 input{width: 260px;}
+        .inputItem{margin: 0;}
+        #input_3{width: 300px;}
+        .popItem .checkBoxLabel{margin-top: 5px;color: #999;line-height: 32px;}
+        .popItem .checkBox{margin-top: -2px;}
+        #select_4,#select_7{width: 388px;}
+        #select_4 input,#select_7 input{width: 328px;}
+        #input_5,#input_6{width: 358px;}
+        .popSave{display: inline-block;width: 100px;line-height: 40px;color: #fff;font-size: 16px;background: #00b2f4;text-align: center;border-radius: 3px;margin: 16px 0 0 82px;}
+        .popSave:active{background: #00a9e7;}
+    </style>
+</head>
+<body>
+<h2>统计指标列表</h2>
+<div class="main-tab">
+
+    <div class="searchGroup">
+        <div class="popItem">
+            <span class="popLeble" style="margin-right:5px;">对应报表</span>
+            <div class="selectWrap j_sel_1" id="search_1">
+                <div>
+                    <input type="text" readonly value="全部" data-code="">
+                    <i></i>
+                </div>
+                <ul style="display: none;"></ul>
+            </div>
+            <div class="selectWrap j_sel_2" id="search_2" style="display: none;">
+                <div>
+                    <input type="text" readonly>
+                    <i></i>
+                </div>
+                <ul></ul>
+            </div>
+            <div class="inputItem" id="search_3">
+                <span class="popLeble">指标名称</span>
+                <input type="text" placeholder="请输入指标名称">
+            </div>
+            <button id="search">搜索</button>
+            <button class="whiteBtn" id="add_new_indicator">新增指标</button>
+            <div class="clear"></div>
+        </div>
+    </div>
+
+    <table class="mainTable">
+        <thead>
+        <tr class="th-tr">
+            <th width="20%">指标名称</th>
+            <th width="35%">描述</th>
+            <th>所属报表</th>
+            <th>指标类型</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="pageWrap"></div>
+</div>
+
+<!--模板.编辑指标弹出框-->
+<div class="winWrap">
+    <i class="winbg"></i>
+    <div class="popupWrap">
+        <div class="popHead">
+            <h4>编辑指标</h4>
+            <a class="popClose" href="javascript:;"></a>
+        </div>
+        <div class="popCont">
+            <div class="popItem">
+                <span class="popLeble">对应报表</span>
+                <div class="selectWrap j_sel_1" id="select_1">
+                    <div>
+                        <input type="text" readonly>
+                        <i></i>
+                    </div>
+                    <ul></ul>
+                </div>
+                <div class="selectWrap j_sel_2" id="select_2">
+                    <div>
+                        <input type="text" readonly>
+                        <i></i>
+                    </div>
+                    <ul></ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">指标名称</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入指标名称" id="input_3">
+                </div>
+                <p class="checkBoxLabel fr" id="daily"><i class="checkBox cue"></i>日报</p>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">指标类型</span>
+                <div class="selectWrap" id="select_4">
+                    <div>
+                        <input type="text" placeholder="请选择指标类型" readonly>
+                        <i></i>
+                    </div>
+                    <ul id="indexType">
+                        <li data-code="1">人工填报</li>
+                        <li data-code="2">系统统计</li>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem" style="display: none;">
+                <span class="popLeble">sql语句</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入sql语句" id="input_5">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">排序</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入排序" id="input_6">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">单位</span>
+                <div class="selectWrap" id="select_7">
+                    <div>
+                        <input type="text" placeholder="请选择指标单位" id="input_7" readonly>
+                        <i></i>
+                    </div>
+                    <ul id="indexUnit">
+                        <li>无</li>
+                        <li>元</li>
+                        <li>万元</li>
+                    </ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <a class="popSave" href="javascript:;">保&nbsp;存</a>
+        </div>
+    </div>
+</div>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script>
+    var user = common.getUser();
+    var totalPage;
+    var base_combox_list = [];
+    $(function(){
+        getData(1);
+        //翻页
+        $(document).on('click', '.page-index', function(){
+            var page = $(this).text();
+            var report_id = $("#search_1").find('input').attr('data-code') || '';
+            var report_child_id = $("#search_2").is(':hidden') ? '' : ($("#search_2").find('input').attr('data-code') || '');
+            var item_name = $('#search_3').find('input').val();
+            getData(page, report_id, report_child_id, item_name)
+        });
+
+        //新增指标按钮
+        $("#add_new_indicator").click(function(){
+            $(".winWrap").show();
+        });
+
+        //编辑
+        $(document).on('click', '.edit', function(){
+            var item_id = $(this).parents('tr').attr('data-item_id');
+            $.ajax({
+                url: '/index.php/indicator/get_item_info',
+                type: 'post',
+                dataType: 'json',
+                data: {item_id: item_id},
+                success: function(res){
+                    if(res.errcode==0){
+                        //-----赋值
+                        //报表
+                        $("#select_1").attr('data-item_id', item_id).find('li[data-code="'+res.data.report_id+'"]').trigger('click');
+                        //子报表
+                        if(res.data.report_child_id) $("#select_2").show().find('li[data-code="'+res.data.report_child_id+'"]').trigger('click');
+                        else $("#select_2").hide().find('input').val('');
+                        //指标名称
+                        $("#input_3").val(res.data.item_name);
+                        //日报
+                        if(res.data.is_daily==1) $("#daily").find('.checkBox').addClass('cue');
+                        else $("#daily").find('.checkBox').removeClass('cue');
+                        //指标类型
+                        $("#select_4").find('li[data-code="'+res.data.item_type+'"]').trigger('click');
+                        //sql语句
+                        $("#input_5").val(res.data.item_sql);
+                        //排序
+                        $("#input_6").val(res.data.item_sort);
+                        //单位
+                        $("#input_7").val(res.data.item_unit ? res.data.item_unit : '无');
+
+                        //展示
+                        $(".winWrap").show();
+                    }else{
+                        common.mytips(res.errmsg);
+                    }
+                }
+            });
+        });
+
+        //选择复选框
+        $(document).on('click', '.checkBoxLabel', function(e){
+            $(this).children('.checkBox').trigger('click');
+            e.stopPropagation();
+        });
+
+        //切换下拉框
+        $(document).on('click', '.selectWrap li', function(){
+            var text = $(this).text();
+            var code = $(this).attr('data-code');
+            $(this).closest(".selectWrap").find('input').val(text);
+            if(code) $(this).closest(".selectWrap").find('input').attr('data-code', code);
+        });
+
+        //选择指标类型（隐藏或显示sql语句输入框）
+        $(document).on('click', '#indexType li', function(){
+            var code = $(this).attr('data-code');
+            if(code == 2){
+                $("#input_5").parents('.popItem').slideDown();
+            }else if(code == 1){
+                $("#input_5").parents('.popItem').slideUp();
+            }
+        });
+
+        //弹出框删除按钮
+        $(document).on('click', '.popClose', function(){
+            $(this).parents('.winWrap').hide();
+        });
+
+        //删除
+        $(document).on('click', '.del', function(){
+            var $this = $(this);
+            common.confirm('确定删除吗？',function(){
+                var item_code = $this.parents('tr').attr('data-item_id');
+                $.ajax({
+                    url: '/index.php/indicator/item_drop',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        item_code: item_code
+                    },
+                    success: function(res){
+                        if(res.errcode == 0){
+                            $this.parents('tr').remove();
+                        }else{
+                            common.mytips(res.errmsg);
+                        }
+                    }
+                });
+            });
+        });
+
+        //获取编辑指标下拉列表
+        $.ajax({
+            url: '/index.php/report/base_combox_list',
+            type: 'post',
+            dataType: 'json',
+            success: function(res){
+                if(res.errcode == 0){
+                    base_combox_list = res.data;
+                    var list = '';
+                    for(var i in res.data){
+                        list += '<li data-code="' + res.data[i].code + '">' + res.data[i].name + '</li>';
+                    }
+                    $('#select_1').find('input').val(res.data[0].name).attr('data-code', res.data[0].code);
+                    $('.j_sel_1').find('ul').html(list);
+                    $("#search_1").find('ul').prepend('<li data-code="">全部</li>');
+                }else{
+                    common.mytips(res.errmsg);
+                }
+            }
+        });
+        //选择新增指标对应报表
+        $(document).on('click', '.j_sel_1 li', function(){
+            var code = $(this).attr('data-code');
+            if(code){
+                for(var i in base_combox_list){
+                    if(base_combox_list[i].code == code){
+                        var obj = $(this).parents('.j_sel_1').next();
+                        if(base_combox_list[i].children.length > 0){
+                            obj.show().find('input').val(base_combox_list[i].children[0].name).attr('data-code', base_combox_list[i].children[0].code);
+                            var childrenList = '';
+                            for(var j in base_combox_list[i].children){
+                                childrenList += '<li data-code="' + base_combox_list[i].children[j].code + '">' + base_combox_list[i].children[j].name + '</li>';
+                            }
+                            obj.find('ul').html(childrenList);
+                        }else{
+                            obj.hide().find('input').val('').removeAttr('data-code');
+                        }
+                        break;
+                    }
+                }
+            }else{
+                $(this).parents('.j_sel_1').next().hide().find('input').val('').removeAttr('data-code');
+            }
+            $(this).closest(".selectWrap").find('input').attr('data-code', code);
+
+        });
+
+        //保存编辑指标
+        $('.popSave').click(function(){
+            var
+                    item_id = $('#select_1').attr('data-item_id'),
+                    report_id = $('#select_1').find('input').attr('data-code'),
+                    report_child_id = $('#select_2').find('input').attr('data-code'),
+                    item_name = $('#input_3').val(),
+                    item_type = $('#select_4').find('input').attr('data-code'),
+                    item_sort = $('#input_6').val(),
+                    is_daily = $("#daily").find('i').hasClass('cue') ? 1 : 0,
+                    item_sql = $('#input_5').closest('.popItem').is(':hidden') ? '' : $('#input_5').val(),
+                    item_unit = $('#input_7').val() == '无' ? '' : $('#input_7').val();
+
+            //必填
+            if(! report_id){
+                common.mytips('请选择对应报表');
+                return false;
+            }
+            if(! $('#select_2').is(':hidden') && !report_child_id){
+                common.mytips('请选择对应报表');
+                return false;
+            }
+            if(! item_type){
+                common.mytips('请选择指标类型');
+                return false;
+            }
+            if(! item_name){
+                common.mytips('请填写指标名称');
+                return false;
+            }
+
+            $.ajax({
+                url: '/index.php/indicator/item_update',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    item_id: item_id,
+                    report_id: report_id,
+                    report_child_id: report_child_id,
+                    item_name: item_name,
+                    item_type: item_type,
+                    item_sort: item_sort,
+                    is_daily: is_daily,
+                    item_sql: item_sql,
+                    item_unit: item_unit
+                },
+                success: function(res){
+                    if(res.errcode==0){
+                        var obj = $('tr[data-item_id="' + item_id + '"]');
+                        obj.find('td').eq(0).text(item_name);
+                        //obj.find('td').eq(1).text();
+                        var text2 = $("#select_1").find('li[data-code="'+report_id+'"]').text();
+                        var text3 = $("#select_2").find('li[data-code="'+report_child_id+'"]').text();
+                        var text4 = $("#indexType").find('li[data-code="'+item_type+'"]').text();
+                        obj.find('td').eq(2).text(report_id=='001' ? text2 : text3);
+                        obj.find('td').eq(3).text(text4);
+                        $('.winWrap').hide();
+                    }else{
+                        common.mytips(res.errmsg);
+                    }
+                }
+            });
+        });
+
+    });
+
+    $("#search").click(function(){
+        var report_id = $("#search_1").find('input').attr('data-code') || '';
+        var report_child_id = $("#search_2").is(':hidden') ? '' : ($("#search_2").find('input').attr('data-code') || '');
+        var item_name = $('#search_3').find('input').val();
+        getData(1, report_id, report_child_id, item_name)
+    });
+
+    //获取数据
+    function getData(page, report_id, report_child_id, item_name){
+        $.ajax({
+            url: '/index.php/indicator/get_list',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                page: page,
+                report_id: report_id,
+                report_child_id: report_child_id,
+                item_name: item_name
+            },
+            success: function(res){
+                if(res.errcode == 0){
+                    var html = '', indexType;
+                    for(var i = 0; i < res.data.list.length; i++){
+                        switch (res.data.list[i].item_type){
+                            case '1': indexType='人工填报';break;
+                            case '2': indexType='系统统计';break;
+                            default: indexType='--';
+                        }
+                        html += '<tr class="td-tr" data-item_id="' + res.data.list[i].item_id + '">' +
+                        '<td>' + res.data.list[i].item_name + '</td>' +
+                        '<td>' + res.data.list[i].description + '</td>' +
+                        '<td>' + res.data.list[i].report_name + '</td>' +
+                        '<td>' + indexType + '</td>' +
+                        '<td><p><a href="javascript:;" class="edit">编辑</a><a href="javascript:;" class="del">删除</a></p></td>' +
+                        '</tr>';
+                    }
+                    $("tbody").html(html);
+
+                    totalPage = Math.ceil(res.data.total / res.data.size);
+                    common.pageCtrl(totalPage, page);
+                }else{
+                    common.mytips(res.errmsg);
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

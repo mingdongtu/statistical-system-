@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>积分记录-健康管理系统</title>
+<script type="text/javascript" src="/web/public/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script type="text/javascript" src="/web/public/js/cookie.js"></script>
+<script type="text/javascript" src="/web/public/js/pagination.js"></script>
+<script type="text/javascript" src="/web/public/js/jquery_time.js"></script>
+<script type="text/javascript" src="/web/public/js/My97DatePicker/WdatePicker.js"></script>
+<link rel="stylesheet" href="/web/public/css/common_h.css">
+<link rel="stylesheet" href="/web/public/css/info.css">
+<style type="text/css">
+.minwarp .optionbox { font-size: 0px;}
+.optionbox .select_warp ul { right:0;}
+.yhlist_box .page-box-btn { top:-2;}
+.yhlist_box .all_box a { margin-left:0;}
+.re_page-box .page-prev {vertical-align:middle; width:42px; height:26px; margin-right:5px; background:url(/web/public/images/page-box-btn.png) no-repeat left -108px; display:inline-block; padding:0;}
+.re_page-box .page-prev:hover {background:url(/web/public/images/page-box-btn.png) no-repeat left -135px; opacity:0.8;filter:Alpha(opacity=80);}
+.re_page-box .page-next {vertical-align: middle; width:42px; height:26px; margin-left:5px; background:url(/web/public/images/page-box-btn.png) no-repeat left -162px; display:inline-block; padding:0;}
+.re_page-box .page-next:hover {background:url(/web/public/images/page-box-btn.png) no-repeat left -189px;opacity:0.8;filter:Alpha(opacity=80);}
+.re_page-box span{ height:26px; padding:0 5px;  text-align:center; line-height:26px; color:#66b944; display:inline-block; font-size:14px;}
+.re_page-box a { height:26px;padding:0 5px;text-align:center; line-height:26px; color:#fff; display:inline-block;  font-size:14px; color:#bbb;}
+.re_page-box a:hover {text-decoration:none; color:#5fb63c;}
+.re_page-box b{display:inline-block; line-height:26px; font-size:12px; font-weight:normal;}
+.re_page-box-btn{width:33px; height:26px; border:none; cursor:pointer; position:relative; top:-1px; left:-5px; text-align:center; color:#bbb; background:url(../../images/page-box-btn1.png) right top no-repeat;}
+
+*+html .re_page-box{position:relative;}
+*+html .re_page-box-btn{top:3px;}
+</style>
+</head>
+<body>
+<div class="main_box">
+	<h2 class="title">积分记录</h2>
+    <div class="optionbox c">
+        <span class="fl fl_margin">查找：</span>
+        <input class="text time fl" id="where" value="" name="where" type="text" placeholder="请输入用户名" />
+        <span class="fl fl_margin">获取时间：</span>
+        <input class="text time fl" id="sdate" value="" name="" type="text" onclick="WdatePicker({maxDate:'#F{$dp.$D(\'edate\') || \'%y-%M-%d\'}'})" />
+        <span class="fl pl5 pr5">至</span>
+        <input class="text time fl" id="edate" value="" name="" type="text" onclick="WdatePicker({minDate:'#F{$dp.$D(\'sdate\')}',maxDate:'%y-%M-%d'})" />
+        <a href="javascript:;" class="button_green btn120 fl_margin" onclick="get_list_all(1)" id="search">查询</a>
+    </div>
+    
+    <table width="100%" border="0" align="center" class="table_box" cellpadding="0" cellspacing="0" id="table">
+    	<thead>
+        	<tr>
+                <th width="25%"><span>|</span>用户名</th>
+                <th width="25%"><span>|</span>积分</th>
+                <th width="25%"><span>|</span>积分模块</th>
+                <th width="25%">获得时间</th>
+			</tr>
+        </thead>
+        <tbody id="record">
+        </tbody>
+    </table>
+    <div class="page-box">
+    </div>
+    
+</div>
+<script type="text/javascript">
+//日期范围限制
+var hms_host = 'http://' + window.location.host + '/';
+var sp_start_date;
+var sp_end_date;
+var sp_handle_man;
+var sp_send_type;
+var sp_send_result;
+var page = 1;
+var page_size = 10;
+var uid = window.location.href.split("?")[1];
+$(function(){
+  get_list_all(1);
+  //当存在uid  隐藏条件输入
+  if(uid != undefined ){
+    $("#where").parents().children("span").eq(0).remove();
+    $("#where").parents().children("input").eq(0).remove();
+  }
+	$("#table").on("mouseenter","tr",function(){
+		var $shbox = $(this).find(".nr_box");
+		if($shbox.length){
+                //alert($(this).css("z-index"));
+		$(this).find(".nr_td").css({"z-index":"220","position":"relative"});
+		$shbox.css({"z-index":"221","position":"absolute"});
+		$shbox.show();
+		var height = $shbox.height();
+		var top = $shbox.offset().top;
+		var winheight = $(window).height();
+		var h=top+height;
+		if(h>winheight && height<top){
+			$shbox.css({"top":"auto","bottom":"0"});
+		}
+		}
+	});
+	$("#table").on("mouseleave","tr",function(){
+		$(this).find(".nr_td").css({"z-index":"","position":"static"});
+		$(this).find(".nr_box").css({"z-index":"","position":"static"});
+		$(this).find(".nr_box").hide();
+	});
+});
+function loaddata(data){
+    var html='';
+    var sort_content='';
+    var sp;
+    if($('#con_size').width()<420){
+        var con_size=17;
+    }else{
+        var con_size=25;
+    }
+	if(data.data.length >0){
+		$.each(data.data,function(k,v){
+		   
+			html+='<tr>';
+			html+='<td>'+v.username+'</td>';
+			html+='<td>'+v.points_num+'</td>';
+			html+='<td>'+v.points_name+'</td>';
+			html+='<td>'+v.add_time+'</d>';
+		});
+		$('#record').html(html);
+	}else{
+		loadempty();
+	}
+}
+
+function loadempty(){
+    var html='<tr><td colspan="4"><p>暂无数据!</p></td></tr>';
+    $('#record').html(html);
+    $('.page-box').html('共0页，0条数据');
+}
+function get_condition(){
+        var data = {};
+        sp_start_date =$.trim($('#sdate').val());
+        sp_end_date   =$.trim($('#edate').val());
+        if (sp_end_date != ''){
+            sp_end_date=sp_end_date+ ' 23:59:59'; 
+         }
+        data.start_time=sp_start_date;
+        data.end_time=sp_end_date;
+			  data.uid=uid;
+        data.where = $.trim($('#where').val());
+            return data;
+}
+
+function get_list_all(page){
+	var data = get_condition();
+	data.page = page|| 1;
+	data.url = hms_host+'index.php/point/get_point_log';
+	var $pagination = $('.page-box');
+	common.ajax(data,function(json){
+      if(json.errcode==0){
+          loaddata(json);
+          $.pagination.init($pagination, get_list_all, json.total, json.page_size, page, true);
+      }else{
+          $.pagination.init($pagination, get_list_all, 0);
+          loadempty();
+      } 
+});
+}
+</script>
+
+</body>
+</html>

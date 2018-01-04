@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link rel="stylesheet" href="/web/public/css/common.css">
+	<title>管理员列表</title>
+	<style>
+		body{padding: 24px 20px;background: #F5F5F5;}
+	</style>
+</head>
+<body>
+<h2>管理员列表</h2>
+<div class="main-tab">
+	<!-- 搜索栏 -->
+	<div class="searchGroup">
+		<div class="popItem">
+			<div class="inputItem">
+				<span class="selectName">关键字</span>
+				<input id="search" name="search" type="text" placeholder="姓名/手机号" onkeydown="if(event.keyCode==13)getData(1)">
+			</div>
+			<button class="blueBtn" onclick="getData(1)">查询</button>
+			<button class="whiteBtn" id="add_new_manager">新增管理员</button>
+		</div>
+	</div>
+	<!-- 列表 -->
+	<table class="mainTable">
+		<thead>
+			<tr class="th-tr">
+				<!-- <th>用户名</th> -->
+				<th>姓名</th>
+				<th>角色</th>
+				<th>上次登录IP</th>
+				<th>上次登录时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+	<div class="pageWrap"></div>
+</div>
+<script type="text/html" id="tpl_mainTable">
+	<% if( list.length > 0 ){ %>
+	<% for( var i in list ){ %>
+		<tr class="td-tr" data-id="<%=list[i].id%>" data-code="<%=list[i].code%>">
+			<td class="mobile"> <%=list[i].name%> </td>
+			<td class="mobile"> <%=list[i].role_name%> </td>
+			<td class="name"> <%=list[i].login_ip%> </td>
+			<td class="role"> <%=list[i].login_time%></td>
+			<td>
+				<p>
+					<a href="javascript:;" class="edit">编辑</a>
+					<a href="javascript:;" class="del">删除</a>
+				</p>
+			</td>
+		</tr>
+	<% } %>
+	<% }else{ %>
+		<tr class="td-tr">
+			<td colspan="4"> 未找到数据 </td>
+		</tr>
+	<% } %>
+</script>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script type="text/javascript" src="/web/public/js/lib/template.js"></script>
+<script>
+	var user = common.getUser();
+	var totalPage;
+	$(function(){
+		getData(1);
+		//翻页
+		$(document).on('click', '.page-index', function(){
+			var page = $(this).text();
+			getData(page);
+		});
+
+		// 新增管理员
+		$(document).on('click', '#add_new_manager', function(){
+			location.href = "add_manager.html";
+		});
+
+		//编辑
+		$(document).on('click', '.edit', function(){
+			var id = $(this).parents('tr').attr('data-id');
+			location.href = 'add_manager.html?id=' + id;
+		});
+
+		//删除
+		$(document).on('click', '.del', function(){
+			var $this = $(this);
+			common.confirm('确定删除吗？',function(){
+				var id = $this.parents('tr').attr('data-id');
+				$.ajax({
+					url: '/index.php/admin/del_manager',
+					type: 'post',
+					dataType: 'json',
+					data: {
+						id: id
+					},
+					success: function(res){
+						if(res.errcode == 0){
+							$this.parents('tr').remove();
+						}else{
+							common.mytips(res.errmsg);
+						}
+					}
+				});
+			});
+		});
+
+	});
+
+	//获取数据
+	function getData(page)
+	{
+		$.ajax({
+			url: '/index.php/admin/get_list',
+			type: 'post',
+			dataType: 'json',
+			data: {
+				page: page, search: $('#search').val()
+			},
+			success: function(res)
+			{
+				if(res.errcode == 0)
+				{
+					$('tbody').html( template( $( '#tpl_mainTable' ).html(), res.data ) );
+					common.pageCtrl( Math.ceil( res.data.total / 10 ), page );
+				}
+				else
+				{
+					common.mytips( res.errmsg );
+				}
+			}
+		});
+	}
+</script>
+</body>
+</html>

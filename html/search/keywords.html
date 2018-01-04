@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>关键词列表</title>
+<link rel="stylesheet" href="/web/public/css/common.css">
+<link href="/web/public/css/common_h.css" rel="stylesheet" type="text/css" />
+<link href="/web/public/css/info.css" rel="stylesheet" type="text/css" />
+<style>
+.mydialog{z-index:10000;}
+.blue_a:link{color:#005aa8; cursor:pointer;}
+.blue_a:visited{color:#004c8e;}
+.blue_a:hover{color:#004c8e; text-decoration:underline;}
+.blue_a:active{color:#004c8e; text-decoration:underline;}
+.gray_a:link{color:#666; cursor:pointer;}
+.gray_a:visited{color:#585858;}
+.gray_a:hover{color:#585858; text-decoration:underline;}
+.gray_a:active{color:#585858; text-decoration:underline;}
+.ml15 { margin-left:15px;}
+.titleh1 { font-size:24px; font-weight:normal; text-align:center; padding:0 20px; word-break:break-all; word-wrap:break-word}
+.titletis { line-height:24px; text-align:center;}
+.titletis span { padding-left:20px;}
+#wentibox{ padding-top:20px;}
+#wtnrbox { margin:30px; padding:0 20px; line-height:24px; overflow:hidden;}
+#wtnrbox h2 { font-size:20px; line-height:30px; background:none;}
+.over_warp { height:88px; padding-top:2px; border-top:1px solid #e2e2e2; margin:0 30px;}
+.over_warp p { height:86px; border-top:1px solid #e2e2e2; background:url(/images/hfjs.png) no-repeat center top;}
+.imgup .uploadify-queue { position:absolute; top:-60px; left:0; width:330px; line-height:30px;}
+.modify_center{padding:15px;}
+</style>
+</head>
+<body>
+<div class="main_box">
+	<h2 class="title">关键词列表</h2>
+    <div class="optionbox c" style="line-height:40px; margin-bottom:20px;">
+        <a id="addfor" class="button_blue btn120" href="javascript:;" onclick="modify_info(this, 0)">添加关键词</a>
+	</div> 
+      
+    <table style="border-collapse:inherit" width="100%" border="0" align="center" class="table_box table_bor" cellpadding="0" cellspacing="0">
+    <thead>
+        <tr>
+            <th width="10%"><span>|</span>选择</th>
+            <th width="30%"><span>|</span>关键词</th>
+            <th width="20%"><span>|</span>是否显示</th>
+            <th width="15%"><span>|</span>排序</th>
+            <th width="20%">操作</th>
+        </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+    </table>
+	<div class="all_box">
+    	<em class="checkbox check-all"><b>全选</b></em>
+        <a id="del_all" href="javascript:;" class="red_btn">删除所选</a>
+    </div>
+    <div class="page-box" id="pagination"></div>
+</div>
+<script type="text/javascript" src="/web/public/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script type="text/javascript" src="/web/public/js/pagination.js"></script>
+<script>
+var current_page;
+$(function(){
+	var checkbox = $(".checkbox");
+	var checkall = $(".check-all");
+	
+	$(document).on("click",".checkbox",function(){
+		if($(this).hasClass("checkcur")){
+			$(this).removeClass("checkcur");
+			checkall.removeClass("checkcur");
+			if($(this).hasClass("check-all")){
+				$(".checkbox").removeClass("checkcur");
+			}
+		}
+		else{
+			$(this).addClass("checkcur");
+			if($(this).hasClass("check-all")){
+				$(".checkbox").addClass("checkcur");
+			}
+		}
+	});
+	
+	$tbody = $('#tbody'),
+	$pagination = $('#pagination');
+	get_list();
+	
+	//删除
+	$('#del_all').live("click",function(){
+		var del_id=new Array();
+		$('.checkcur').each(function(k,v){
+			del_id[k]=$(this).data('id');
+		});
+
+		if(del_id==''){
+			common.mytips_one('请至少选择一条记录');
+		}else if(typeof(del_id)!='undefined'){
+			var data = {url:hms_host+'index.php/Search/delete',id:del_id};
+			common.confirm('确定删除吗？',function(){
+				common.ajax(data,function(json){
+					common.mytips_one(json.errmsg);
+					if(!json.errcode){
+						get_list(1);
+					}
+				});      
+			});         
+		}
+	});
+});
+
+function get_list(page){
+	var data = {url:hms_host+'index.php/Search/get_list'};
+	page=page?page:1;
+	data.page = page || 1;
+	current_page = data.page;
+	$(".all_box").show();
+	common.ajax(data,function(json){
+		if(json.errcode){
+			$tbody.html('<tr><td align="center" colspan="5">暂无数据</td></tr>');
+			$.pagination.init($pagination, get_list, 0);
+			$(".all_box").hide();
+			return false;
+		}
+
+		var html = '', len = json.data.length;
+		for(var i = 0;i < len;i++){
+			html += 
+			'<tr>'+
+			  '<td><em class="checkbox" data-id="'+json.data[i].id+'"></em></td>'+
+			  '<td align="center" valign="middle">'+json.data[i].name+'</td>'+
+			  '<td align="center" valign="middle">'+(json.data[i].isshow == '1' ? '<font color="red">是</font>' : '否')+'</td>'+
+			  '<td align="center" valign="middle">'+json.data[i].sort_num+'</td>'+
+			  '<td align="center" valign="middle"><a class="blue_a edit" href="javascript:;" onclick="modify_info(this, '+json.data[i].id+')">修改</a></td>'+
+			'</tr>';
+		}
+		$tbody.html(html);
+		$.pagination.init($pagination, get_list, json.total, 10, page,true);
+	});
+}
+
+//新增或编辑
+function modify_info(obj, id){
+	var modify = $('<div class="modify_warp"><i class="mybj"></i></div>');
+	var modify_box=$('<div class="modify_box" style="width:600px; height:360px;margin-left:-300px;margin-top:-150px;">'+
+	'<a class="close" href="javascript:;"></a>'+
+	'<h2>' + (id > 0 ? '修改' : '添加') + '关键词</h2>'+
+	'<div class="modify_center"><div class="dl_warp"></div>'+
+	'<div class="botton_box2" id="dsss"><a href="javascript:;" class="button_green btn150" id="edit_ok">确定</a><a href="javascript:;" class="button_gray btn150">取消</a></div></div></div>');
+	modify_box.appendTo(modify);
+	modify.appendTo("body");
+
+	var name = id > 0 ? ' value="'+$(obj).parents("tr").find("td").eq(1).text()+'"' : '';
+	var isshow = id > 0 ? $(obj).parents("tr").find("td").eq(2).text() : '否';
+	isshow = isshow == '否' ? 0 : 1;
+	
+	var sort_value = id > 0 ? ' value="' + $(obj).parents("tr").find("td").eq(3).text() + '"' : '';
+
+	var html = '<dl><dt>关键词：</dt><dd style="width:400px;"><input type="text" style="width:320px;" class="text"' + name + ' name="kw_name"></dd></dl>';
+	html += '<dl><dt>是否显示：</dt><dd style="width:400px;"><input type="radio" value="1" '+(isshow == 1 ? ' checked' : '')+' name="isshow" />是 <input type="radio" value="0" '+(isshow == 1 ? '' : 'checked')+' name="isshow" />否</dd></dl>';
+	html += '<dl><dt>排序：</dt><dd style="width:400px;"><input type="text" style="width:200px;"' + sort_value + ' class="text" name="kw_sort">&nbsp;&nbsp;数值越小，排名越靠前</dd></dl>';
+	var dl1=$(html);
+	var dl_warp=$(".dl_warp");
+	dl1.appendTo(dl_warp);
+	
+	$(".modify_warp .close, .modify_warp .button_gray").click(function(e) {
+		$(this).parents(".modify_warp").remove();
+	});
+	$("#edit_ok").on('click',function(){
+		var name = $("input[name=kw_name]").val();
+		var kw_sort = $("input[name=kw_sort]").val();
+		var isshow = $("input[name=isshow]:checked").val();
+		if(name === ''){
+			common.mytips_one("关键词不能为空");
+			return;		
+		}
+		var data = {url:hms_host+'index.php/Search/edit',id:id,name:name,isshow:isshow,sort:kw_sort,rand:Math.random()};
+		common.ajax(data,function(json){
+			console.log(json);
+			common.mytips_one(json.errmsg);
+			if(!json.errcode){
+				$(".modify_warp").remove();
+				get_list(current_page);
+			}
+		});
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>添加积分规则</title>
+<script type="text/javascript" src="/web/public/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<link rel="stylesheet" href="/web/public/css/common_h.css">
+<style type="text/css">
+.two_nav { border-top:2px solid #63b841;background:#eceef3; height:38px; font-size:16px; margin-bottom:15px;}
+.two_nav ul { overflow:hidden;}
+.two_nav ul li { padding:5px 0; line-height:28px; position:relative; left:-1px; float:left;}
+.two_nav ul li.cur { background:#63b841;}
+.two_nav ul li.cur a { color:#fff;border-left:1px solid #63b841;}
+.two_nav ul li a { border-left:1px solid #dcdcdc; display:block; padding:0 20px;}
+.card_dl { padding-top:20px;}
+.card_dl dl {padding-bottom:20px;}
+.card_dl dl dt { width:150px; text-align:right; line-height:42px; float:left;}
+.card_dl dl dd { float:left;}
+.card_btn { padding:10px 0 30px 150px;}
+.card_btn a {display:inline-block; *display:inline;*zoom:1;}
+.w400 { width:400px;}
+.text_w1 { width:600px; height:60px;}
+.text_w2 { width:600px; height:140px;}
+.text_w3 { width:600px; height:240px;}
+.seachbox { padding-bottom:20px; overflow:hidden; line-height:42px;}
+#page-box3 { padding-bottom:10px; padding-top:15px;}
+.pt25 { padding-top:25px;}
+.tipdiv { padding-left:120px;}
+.add-zu, .zu-list { line-height:42px;}
+#addimg { width:130px; height:84px; line-height:84px; text-align:center;border: 1px dashed #bbb;color: #bbb; border-radius:3px; float:left;}
+#addimg a{ color:#bbb; display:block;}
+.item_list { width:610px; border:1px solid #e2e2e2; overflow:hidden;}
+.item_list h2 { padding:0 15px; background:#f7f8fb; font-size:14px; line-height:36px; overflow:hidden;}
+.item_list ul { min-height:30px; _height:30px;}
+.item_list li { padding:10px 15px; overflow:hidden; border-top:1px solid #e2e2e2; margin-top:-1px;}
+.item_list li a { float:right;}
+#tianjia { float:right; line-height:36px; font-weight:normal; color:#005aa8;}
+#tianjia:hover { color:#63b841;}
+.all_box a {height:34px;line-height:34px;width:90px; display:block;}
+#hz-name { width:620px; overflow:hidden;}
+#hz-name a {white-space: nowrap; float:left; margin:2px 15px 8px;}
+.erwm { width:172px; height:172px; text-align:center; border:1px solid #e2e2e2; border-radius:3px; overflow:hidden;}
+.erwm p { font-size:12px; color:#999; padding-top:70px;}
+.scewm { display:block; margin-top:10px; width:120px; height:32px; line-height:32px; border:1px dashed #e2e2e2; border-radius:3px; text-align:center; color:#005aa8;}
+.scewm:hover { background:#005aa8; color:#fff; border:1px solid #005aa8;}
+.addImageBtn{width: 130px;height: 84px;line-height: 84px;text-align: center;display: inline-block;border: 1px dashed #bbb;border-radius: 5px;color: #bbb;}
+.addImage{display: none;}
+.back { background:white;}
+.main_box .back:focus { border:1px solid #e2e2e2;}
+.select_warp i {
+    background: url(/web/public/images/ico_02.png) no-repeat right top;
+    width: 34px;
+    height: 40px;
+    position: absolute;
+    right: 8px;
+    top: 15px;
+</style>
+</head>
+
+<body>
+<div class="main_box">
+	<h2 class="title">修改密码</h2>
+	<input id="id" value="" type='hidden'  />
+    <div class="card_dl">  
+        <dl class="c">
+            <dt><b class="red">*</b>原密码：</dt>
+            <dd><input type="password" name="" id="old_pwd"  value="" class="text" style="width:200px;" /></dd>
+        </dl>
+        <dl class="c">
+            <dt><b class="red">*</b>新密码：</dt>
+            <dd><input type="password" name="" id="new_pwd"  value="" class="text" style="width:200px;" /></dd>
+        </dl>
+        <dl class="c">
+            <dt><b class="red">*</b>确认密码：</dt>
+            <dd><input type="password" name="" id="re_pwd"  value="" class="text" style="width:200px;" /></dd>
+        </dl>       
+        <div class="card_btn">
+        	<a href="javascript:;"  onclick="save()" class="button_green btn120">保存</a>
+            <a onclick="window.history.go(-1);" class="button_gray btn120 ml20" href="javascript:;">返回</a>
+        </div>
+    </div> 
+</div>
+<script language="javascript">
+var id = common.get_url_param('id');
+
+function save(){
+	var old_pwd=$("#old_pwd").val();
+	var new_pwd=$("#new_pwd").val();
+	var re_pwd=$("#re_pwd").val();
+    var data = {
+	        id:id,
+	        old_pwd:old_pwd,
+            new_pwd:new_pwd,
+			re_pwd:re_pwd
+        };
+	var url = hms_host + 'index.php/admin/changepwd';
+		$.ajax({
+                type:'post',
+                dataType:'json',
+                url:url,
+                data:data,
+                success:function(json){
+                    if(json.errcode == 0){
+						window.history.go(-1);
+                    }else{
+					   common.mytips(json.errmsg)
+					}
+                }
+            });	
+}
+</script>
+</body>
+</html>

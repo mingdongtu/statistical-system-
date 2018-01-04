@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="/web/public/css/common.css">
+    <title>角色管理</title>
+    <style>
+        body{padding: 24px 20px;background: #f5f5f5;}
+    </style>
+</head>
+<body>
+<h2>角色管理</h2>
+<div class="main-tab">
+    <div class="searchGroup">
+        <div class="popItem">
+            <button class="whiteBtn" id="add_new_role">新增角色</button>
+        </div>
+    </div>
+    <table class="mainTable">
+        <thead>
+            <tr class="th-tr">
+                <th width="20%">角色名称</th>
+                <th width="40%">角色说明</th>
+                <th colspan="4">操作</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div class="pageWrap"></div>
+</div>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script>
+    var user = common.getUser();
+    $(function(){
+        getData(1);
+
+        // 新增管理员
+        $(document).on('click', '#add_new_role', function(){
+            location.href = "edit_role.html";
+        });
+
+        //填报分配
+        $(document).on('click', '.fill', function(){
+            var code = $(this).parents('tr').attr('data-code');
+            location.href = 'role_indicator.html?code=' + code;
+        });
+
+        //编辑后台权限
+        $(document).on('click', '.role_power', function(){
+            var code = $(this).parents('tr').attr('data-code');
+            var name = $(this).parents('tr').children('td').eq(0).text();
+            location.href = 'role_power.html?code=' + code + '&name=' + name;
+        });
+
+        //编辑
+        $(document).on('click', '.edit', function(){
+            var code = $(this).parents('tr').attr('data-code');
+            var role_name = $(this).parents('tr').children('td').eq(0).text();
+            var remark = $(this).parents('tr').children('td').eq(1).text();
+            location.href = 'edit_role.html?code=' + code + '&remark=' + remark + '&role_name=' + role_name;
+        });
+
+        //删除
+        $(document).on('click', '.del', function(){
+            var $this = $(this);
+            common.confirm('确定删除吗？',function(){
+                var code = $this.closest('tr').attr('data-code');
+                $.ajax({
+                    url: '/index.php/role/drop',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {code: code},
+                    success: function(res){
+                        if(res.errcode == 0){
+                            //$this.parents('tr').remove();
+                            location.replace('role_list.html');
+                        }else{
+                            common.mytips(res.errmsg);
+                        }
+                    }
+                });
+            });
+        });
+
+        //翻页
+        $(document).on('click', '.page-index', function(){
+            var page = parseInt($(this).text());
+            getData(page);
+        })
+    });
+
+    //获取数据
+    function getData(page){
+        $.ajax({
+            url: '/index.php/role/get_role_list',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                page: page,
+                uid: user.uid
+            },
+            success: function(res){
+                if(res.errcode == 0){
+                    var html = '';
+                    for(var i = 0; i < res.data.data.length; i++){
+                        html += '<tr class="td-tr" data-code="' + res.data.data[i].code + '">' +
+                        '<td><p>' + res.data.data[i].name + '</p></td>' +
+                        '<td><p>' + res.data.data[i].remark + '</p></td>' +
+                        '<td><a href="javascript:;" class="edit">编辑</a></td>' +
+                        // (res.data.data[i].code=='001' ? '<td colspan="3"></td>' : '<td><a class="role_power" href="javascript:;">编辑后台权限</a></td>' +
+                        // // '<td><a href="javascript:;" class="fill">填报分配</a></td>' +
+                        // '<td><a href="javascript:;" class="del">删除</a></td>') +
+                        '</tr>';
+                    }
+                    $("tbody").html(html);
+                    totalPage = Math.ceil(res.data.total / res.data.size);
+                    common.pageCtrl(totalPage, page);
+                }else{
+                    common.mytips(res.errmsg);
+                }
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

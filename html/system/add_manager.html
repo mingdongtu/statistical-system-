@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link rel="stylesheet" href="/web/public/css/common.css">
+	<title>新增管理员</title>
+	<style>
+		body{padding: 24px 20px;background: #f5f5f5;}
+		.main-tab-2{background: #fff;border: 1px solid #eee;border-radius: 5px;position: absolute;top: 58px;bottom: 20px;left: 22px;right: 22px;}
+		.formWrap{width: 400px;position: absolute;left: 50%;margin-left: -200px;top: 50px;}
+		.formWrap div{position: relative;margin-bottom: 22px;}
+		.formWrap div>span{position: absolute;left: 100%;top: 0;white-space: nowrap;line-height: 46px;margin-left: 18px;font-size: 12px;color: #ff6161;}
+		.formWrap label{display: block;position: relative;}
+		.formWrap label>span{position: absolute;right: 100%;white-space: nowrap;line-height: 46px;margin-right: 18px;font-size: 16px;}
+		.popItem input{width: 368px;height: 44px;padding: 0 15px;outline: none;border-radius: 5px; border:1px solid #ddd; font-size: 14px;line-height: 44px;}
+		.popItem input:focus{border-color: #00b2f4;}
+		.popItem input.err{border-color: #ff6161;}
+		.popItem input[readonly]{cursor: pointer;line-height: 44px;}
+		.popItem input[readonly]:focus{border: 1px solid #d7d7d7;}
+		.formWrap i{position: absolute;top: 20px;right: 16px;width: 0;height: 0;border-left: 5px solid transparent;border-top: 5px solid #bbb;border-right: 5px solid transparent;}
+		.formWrap ul{position: absolute;background: #fff;width: 398px;max-height: 200px;overflow-y: auto;margin-top: 2px;border: 1px solid #d7d7d7;border-radius: 3px;padding: 5px 0;display: none;z-index: 1;}
+		.formWrap li{cursor: pointer;line-height: 42px;padding: 0 10px;}
+		.formWrap li:hover{background: #f8f8f8;}
+		.blueBtn{ height:36px; line-height:36px;width: 195px;}
+		.popItem{ width: 400px; }
+		.selectWrap{ width: 400px; height: 44px;}
+		.selectWrap input{ border: 0;}
+	</style>
+</head>
+<body>
+<h2>新增管理员</h2>
+<div class="main-tab-2">
+	<div class="formWrap">
+		<div id="t1" class="popItem">
+			<label>
+				<span>手机</span>
+				<input type="text" class="input1" id="mobile" placeholder="请输入手机号" maxlength="11">
+			</label>
+			<span></span>
+		</div>
+		<div class="popItem">
+			<label>
+				<span>密码</span>
+				<input type="password" class="input1" id="psword" placeholder="请输入长度6-16位字母、数字或符号至少两种组合的密码" maxlength="20">
+			</label>
+			<span></span>
+		</div>
+		<div class="popItem">
+			<label>
+				<span>确认密码</span>
+				<input type="password" class="input1" id="repsword" onblur="check_pwd()" placeholder="请再次输入密码" maxlength="20">
+			</label>
+			<span></span>
+		</div>
+		<div class="popItem">
+			<label>
+				<span>姓名</span>
+				<input type="text" class="input1" id="name" placeholder="请输入姓名">
+			</label>
+			<span></span>
+		</div>
+		<div id="role-select">
+			<label><span>角色</span></label>
+			<div class="selectWrap">
+				<div>
+					<input type="text" id="role" placeholder="请选择角色" readonly>
+					<i></i>
+				</div>
+				<ul></ul>
+			</div>
+			<span></span>
+		</div>
+		<div style="display: inline-block;">
+		<a id="submit" class="blueBtn" href="javascript:;">保&nbsp;&nbsp;存</a>
+		<a id="del_sub" class="blueBtn" href="javascript:;">取&nbsp;&nbsp;消</a>
+		</div>
+	</div>
+</div>
+
+<script type="text/html" id="tpl_roleSelect">
+	<% for( var i in list ){ %>
+		<li data-code="<%=list[i].code%>"> <%=list[i].name%> </li>
+	<% } %>
+</script>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script type="text/javascript" src="/web/public/js/lib/template.js"></script>
+<script>
+	var user	= common.getUser();
+	var id		= common.get_url_param( 'id' );
+	function check_pwd(){
+		var password = $.trim( $("#psword").val() );
+		var repassword = $.trim( $("#repsword").val() );
+
+		if( password != repassword){
+			 return $("#repsword").addClass('err').parent().next().text('密码不一致'), false;
+		}		
+	};
+
+	$(function(){
+		//提交数据
+		$("#submit").click(function(){
+			var mobile = $.trim( $("#mobile").val() );
+			var password = $.trim( $("#psword").val() );
+			var repassword = $.trim( $("#repsword").val() );
+			var name = $.trim( $("#name").val() );
+			var role_code = $("#role").attr('data-code');
+
+			//验证数据
+			if(! mobile)
+				return $("#mobile").addClass('err').parent().next().text('请输入手机号码'), false;
+			if(! isMobile(mobile))
+				return $("#mobile").addClass('err').parent().next().text('请输入正确的手机号码'), false;
+			if( password ){
+				if(! /(?!^[0-9]+$)(?!^[A-z]+$)(?!^[^A-z0-9]+$)^.{6,20}$/.test(password)){
+					return $("#psword").addClass('err').parent().next().text('请输入长度6-16位字母、数字或符号至少两种组合的密码'), false;
+				}
+			}else{
+				return $("#psword").addClass('err').parent().next().text('密码不能为空'), false;
+			}
+			if( repassword ){
+				if(! /(?!^[0-9]+$)(?!^[A-z]+$)(?!^[^A-z0-9]+$)^.{6,20}$/.test(repassword)){
+					return $("#repsword").addClass('err').parent().next().text('请输入长度6-16位字母、数字或符号至少两种组合的密码'), false;
+				}
+			}else{
+				return $("#repsword").addClass('err').parent().next().text('确认密码不能为空'), false;
+			}
+			if(!name){
+				 return $("#name").addClass('err').parent().next().text('姓名不能为空'), false;
+			}
+			if(! role_code)
+				return $("#role").parent().parent().next().text('请选择角色'), false;
+
+			if( password != repassword){
+				 return $("#repsword").addClass('err').parent().next().text('密码不一致'), false;
+			}
+			//提交数据
+			$.post( '/index.php/admin/update_info', { id:id, mobile:mobile, password:password, name:name, role_code:role_code }, function(res)
+			{
+				if(res.errcode == 0)
+					location.href = 'manager_list.html';
+				else
+					common.mytips(res.errmsg);
+			}, 'json'
+			)
+		});
+
+		$("#del_sub").click(function(){
+			location.href = 'manager_list.html';
+		});
+
+		//切换下拉框
+		$(document).on('click', '.selectWrap li', function(){
+			var text = $(this).text();
+			var code = $(this).attr('data-code');
+			$(this).parent().parent().next().empty();
+			$(this).closest(".selectWrap").find('input').val(text);
+			$(this).closest(".selectWrap").find('input').attr('data-code', code);
+		});
+
+		//清除错误提示
+		$(".input1").focus(function(){
+			$(this).removeClass('err').parent().next().empty();
+			//$('.err').removeClass('err').parent().next().empty();
+		});
+
+		//	获取角色列表
+		$.ajax({
+			url			: '/index.php/admin/get_role_list',
+			type		: 'post',
+			dataType	: 'json',
+			data		: { page_size:-1 },
+			success		: function(res)
+			{
+				if( res.errcode == 0 )
+				{
+					$('#role-select').find('ul').T( '#tpl_roleSelect', { list:res.data.list } );
+					//	如果是编辑则获取管理员信息
+					if( id )
+						get_admin_info();
+				}
+				else
+					common.mytips(res.errmsg);
+			}
+		})
+	});
+
+	//是否手机号
+	function isMobile(mobile){
+		var reg = /^(13[0-9]{9}|14[5,7]{1}\d{8}|15[^4]{1}\d{8}|17[0,6,7,8]{1}\d{8}|18[\d]{9})$/;
+		return reg.test(mobile);
+	}
+
+	function get_admin_info()
+	{
+		//	获取管理员信息
+		$.ajax({
+			url			: '/index.php/admin/get_info',
+			type		: 'post',
+			dataType	: 'json',
+			data		: { id:id },
+			success		: function(res)
+			{
+				if(res.errcode == 0)
+				{
+					$('h2').text( '编辑管理员' );
+					$('#mobile').val(res.data.mobile);
+					$('#name').val(res.data.name);
+					$("#role-select li[data-code='" + res.data.role_code +"']").trigger('click');
+				}
+				else
+					common.mytips(res.errmsg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

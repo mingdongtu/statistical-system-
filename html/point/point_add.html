@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>添加积分规则</title>
+<script type="text/javascript" src="/web/public/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<link rel="stylesheet" href="/web/public/css/common_h.css">
+<style type="text/css">
+
+.card_dl { padding-top:20px;}
+.card_dl dl {padding-bottom:20px;}
+.card_dl dl dt { width:150px; text-align:right; line-height:42px; float:left;}
+.card_dl dl dd { float:left;}
+.card_btn { padding:10px 0 30px 150px;}
+.card_btn a {display:inline-block; *display:inline;*zoom:1;}
+.text_w1 { width:600px; height:60px;}
+.text_w2 { width:600px; height:140px;}
+.text_w3 { width:600px; height:240px;}
+.back { background:#f2f2f2;}
+.main_box .back:focus { border:1px solid #e2e2e2;}
+.select_warp i {
+    background: url(/web/public/images/ico_02.png) no-repeat right top;
+    width: 34px;
+    height: 40px;
+    position: absolute;
+    right: 8px;
+    top: 15px;
+}
+</style>
+</head>
+
+<body>
+<div class="main_box">
+	<h2 class="title">添加积分规则</h2>
+	<input id="id" value="" type='hidden'  />
+    <div class="card_dl">
+    	<dl class="c">
+            <dt><b class="red">*</b>积分规则模型：</dt>
+            <dd>
+            	<div class="select_warp fl" style="width:400px;" id="zdtype">
+                <i></i>
+                <ul id="point_model">
+                    <li data-id="invite"><a href="javascript:;">邀请好友</a></li>
+                    <li data-id="invite_doctor"><a href="javascript:;">邀请医生</a></li>
+                    <li data-id="inquiry"><a href="javascript:;">图文/视频问诊付费</a></li>
+                    <li data-id="rechang"><a href="javascript:;">余额充值</a></li>
+                    <li data-id="comment"><a href="javascript:;">图文/视频问诊结束后评价</a></li>
+                </ul>
+                <input name="point_model_text" id="point_model_text" type="text" value="请选择积分模型" readonly="readonly" />
+            </div>
+            </dd>
+        </dl>
+        
+        <dl class="c">
+            <dt><b class="red">*</b>积分：</dt>
+            <dd><input type="text" name="" id="points_num"  value="" class="text" style="width:200px;" /></dd>
+        </dl>
+        <dl class="c">
+            <dt><b class="red">*</b>规则描述：</dt>
+            <dd>
+            	<textarea name="" id="zhuyi"  cols="" onkeyup="count_in()" data-minlength="1" data-maxlength="200" rows="" class="text text_w2"></textarea>
+                <desc id="desc_bak">可以输入200字</desc>
+            </dd>
+        </dl>
+        <dl class="c">
+            <dt>状态：</dt>
+            <dd>
+            	<div class="select_warp fl" style="width:100px;" id="zdtypes">
+                    <i></i>
+                    <ul id="points_status">
+    				<li  class='cur' data-id="1"><a href="javascript:;">启用</a></li>
+    				<li  data-id="0"><a href="javascript:;">停用</a></li>
+                    </ul>
+                    <input name="status_text" id="status_text" type="text" value="启用" readonly="readonly" />
+                </div>
+            </dd>
+        </dl>
+       
+        <div class="card_btn">
+        	<a href="javascript:;"  onclick="add_partner()" class="button_green btn120">保存</a>
+            <a onclick="window.history.go(-1);" class="button_gray btn120 ml20" href="javascript:;">返回</a>
+        </div>
+    </div> 
+</div>
+<script language="javascript">
+$(function() {
+	get_model_list(0)
+});
+function add_partner(){
+	var point_model=$("#point_model li[class='cur']").attr('data-id');
+	var model_name=$("#point_model li[class='cur'] a").text();
+	var status=$("#points_status li[class='cur']").attr('data-id');
+	var points_num=$("#points_num").val();
+	var desc=$("#zhuyi").val();
+	var id=$("#id").val();
+    var data = {
+	        id:id,
+	        point_model:point_model,
+            model_name:model_name,
+			desc:desc,
+			status:status,
+			points_num:points_num,
+        };
+	var url = hms_host + 'index.php/point/add_model';
+		$.ajax({
+                type:'post',
+                dataType:'json',
+                url:url,
+                data:data,
+                success:function(json){
+                    if(json.errcode == 0){
+						 window.location.href = 'point_model.html';
+                    }else{
+					   common.mytips(json.errmsg)
+					}
+                }
+            });	
+}
+
+function count_in(){
+    var zhuyi = $('#zhuyi');
+    var length = zhuyi.val().length;
+    var max_len = zhuyi.attr('data-maxlength');
+    if(max_len >=length){
+        var left_in = max_len - length;
+        $('#desc_bak').text('可以输入'+left_in+'字');
+    }else{
+        zhuyi.attr("value",zhuyi.val().substring(0,200));
+    }
+}
+
+function get_info(address,phone){
+   $("#address").val(address);
+   $("#phone").val(phone);
+}
+function get_model_list(){
+	var url = hms_host + 'index.php/point/get_model_list';
+		 $.ajax({
+                type:'post',
+                dataType:'json',
+                url:url,
+                data:{"page_size":1000},
+                success:function(json){
+                    if(json.errcode == 0){
+						//   var data=json.data;
+						//   var html='';
+						// for(var i = 0; i<data.length; i++){
+						// 		html+='<li  data-id="'+data[i]['points_code']+'"><a href="javascript:;">'+data[i]['points_name']+'</a></li>';
+						//  }
+						//   $("#point_model").html(html);
+						   
+						   edit()						  
+                    }
+                },
+            });
+}	
+
+
+function edit(){
+
+var id = common.get_url_param('id');
+if(id){
+	//获取编辑内容
+	//获取编辑内容
+	$(".title").html("编辑规则");
+	$.post(hms_host+'index.php/point/get_content',{'id':id},function(json){
+	     if(json.errcode==0){
+		    
+		    var data=json.data;
+			$("#id").val(data.points_id);
+			var partner_list = $("#point_model li");
+			$("#point_model li").removeClass('cur');
+			for(var i=0;i<partner_list.length;i++){
+				if($("#point_model li:eq("+i+")").attr('data-id')==data.points_code){
+					 // $("#partner_text").val($("#partner_list li:eq("+i+")").text());
+					  $("#point_model li:eq("+i+")").addClass('cur');
+				}
+			} 
+			$("#point_model_text").val(data.points_name)
+			$("#points_status li").removeClass('cur');
+			for(var i=0;i<2;i++){
+				if($("#points_status li:eq("+i+")").attr('data-id')==data.points_status){
+					 // $("#partner_text").val($("#partner_list li:eq("+i+")").text());
+					  $("#points_status li:eq("+i+")").addClass('cur');
+				}
+			} 
+			$("#status_text").val(data.points_status==0?"停用":'启用')
+		    $("#points_num").val(data.points_num)
+		    $("#zhuyi").val(data.points_desc)
+			
+			 
+		 }
+	},'json')
+}
+}
+</script>
+</body>
+</html>

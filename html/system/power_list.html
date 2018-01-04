@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="/web/public/css/common.css">
+    <title>权限列表</title>
+    <style>
+        body{padding: 24px 20px;background: #f5f5f5;}
+        .selectWrap {float: left;}
+        .checkBoxLabel{cursor: pointer;}
+        .winWrap{position: fixed;left: 0;top: 0;width: 100%;height: 100%;z-index: 1000;display: none;}
+        .winbg{position: absolute;left: 0;right: 0;top: 0;bottom: 0;background: #000;opacity: 0.5;}
+        .popupWrap{position: absolute;left: 50%;top: 150px;margin-left: -260px;width: 520px;background: #fff;border-radius: 10px;border: 1px solid #ddd;}
+        .popHead{position: relative;border-bottom: 1px solid #eee;}
+        .popHead h4{font-size: 18px;text-align: center;font-weight: normal;line-height: 50px;}
+        .popClose{position: absolute;right: 16px;top: 16px;width: 20px;height: 20px;background: url(/web/public/images/icon_05.png) no-repeat center;}
+        .popCont{padding: 10px 24px 30px 24px;}
+        .popLeble{float: left;line-height: 44px;width: 95px;font-size: 16px;text-align: right;margin-right: 12px;}
+        .j_sel_1,.j_sel_2{width: 185px;}
+        .j_sel_2{margin-left: 16px;display: none;}
+        .inputItem{margin: 0;}
+        .popItem .checkBoxLabel{margin-top: 5px;color: #999;line-height: 32px;}
+        .popItem .checkBox{margin-top: -2px;}
+        .popSave{display: inline-block;width: 100px;line-height: 40px;color: #fff;font-size: 16px;background: #00b2f4;text-align: center;border-radius: 3px;margin: 16px 0 0 82px;}
+        .popSave:active{background: #00a9e7;}
+        .popUpdate{display: inline-block;width: 100px;line-height: 40px;color: #fff;font-size: 16px;background: #00b2f4;text-align: center;border-radius: 3px;margin: 16px 0 0 82px;}
+        .popUpdate:active{background: #00a9e7;}
+
+    </style>
+</head>
+<body>
+<h2>权限列表</h2>
+<div class="main-tab">
+    <!-- 搜索栏 -->
+    <div class="searchGroup">
+        <div class="popItem">
+            <div class="inputItem">
+                <span class="selectName">权限名称</span>
+                <input id="name" name="name" type="text">
+                <span class="selectName">创建人</span>
+                <input id="creater" name="creater" type="text">
+            </div>
+            <button class="blueBtn" onclick="getData(1)">查询</button>
+            <button class="whiteBtn" id="add_new_power">新增权限</button>
+        </div>
+    </div>
+    <!-- 列表 -->
+    <table class="mainTable">
+        <thead>
+            <tr class="th-tr">
+                <th width="20%">权限名称</th>
+                <th width="20%">url</th>
+                <th width="20%">编辑时间</th>
+               <!--  <th width="20%">排序</th> -->
+                <!-- <th width="20%">是否显示</th> -->
+                <!-- <th width="20%">备注</th> -->
+                <th width="20%">编辑人</th>
+                <th width="20%">操作</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div class="pageWrap"></div>
+</div>
+
+<!--模板 编辑 权限 弹出框-->
+<div id="edit_power_window" class="winWrap">
+    <i class="winbg"></i>
+    <div class="popupWrap">
+        <div class="popHead">
+            <h4>编辑权限</h4>
+            <a class="popClose" href="javascript:;"></a>
+        </div>
+        <div class="popCont">
+            <div class="popItem">
+                <span class="popLeble">上级权限：</span>
+                <div class="selectWrap j_sel_1" id="u_last_power_selector" data-code="">
+                    <div>
+                        <input type="text" readonly="readonly">
+                        <i></i>
+                    </div>
+                    <ul></ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <input type="text" id="u_power_code" style="display: none;">
+            <div class="popItem">
+                <span class="popLeble">权限名称：</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入权限名称" id="u_power_name">
+                </div>
+                <p class="checkBoxLabel fr" id="u_power_is_hide"><i class="checkBox"></i>显示</p>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">URI：</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入..." id="u_power_uri">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">排序：</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入..." id="u_power_sort">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">图标：</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入..." id="u_power_icon">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">备注：</span>
+                <div class="inputItem" id="select_7">
+                    <input type="text" placeholder="请输入..." id="u_power_remark">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <a class="popUpdate" href="javascript:;">保&nbsp;存</a>
+        </div>
+    </div>
+</div>
+
+<!--模板 新增 权限 弹出框-->
+<div id="add_new_power_window" class="winWrap">
+    <i class="winbg"></i>
+    <div class="popupWrap">
+        <div class="popHead">
+            <h4>新增权限</h4>
+            <a class="popClose" href="javascript:;"></a>
+        </div>
+        <div class="popCont">
+            <div class="popItem">
+                <span class="popLeble">上级权限：</span>
+                <div class="selectWrap j_sel_1" id="c_last_power_selector" data-code="">
+                    <div>
+                        <input type="text" readonly="readonly">
+                        <i></i>
+                    </div>
+                    <ul></ul>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">权限名称：</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入权限名称" id="c_power_name">
+                </div>
+                <p class="checkBoxLabel fr" id="c_power_is_hide"><i class="checkBox cue"></i>显示</p>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">URI：</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入..." id="c_power_uri">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">排序：</span>
+                <div class="inputItem">
+                    <input type="text" placeholder="请输入..." id="c_power_sort">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">图标：</span>
+                <div class="inputItem" id="select_7">
+                    <input type="text" placeholder="请输入..." id="c_power_icon">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="popItem">
+                <span class="popLeble">备注：</span>
+                <div class="inputItem" id="select_7">
+                    <input type="text" placeholder="请输入..." id="c_power_remark">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <a class="popSave" href="javascript:;">确&nbsp;定</a>
+        </div>
+    </div>
+</div>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script>
+    var user = common.getUser();
+    var totalPage;
+    $(function(){
+        getData(1);
+        $(document).on('click', '.page-index', function(){
+            var page = $(this).text();
+            getData(page);
+        });
+        // 查询上级权限数据
+        $.ajax({
+            url : '/index.php/role/get_last_power_list',
+            type: 'post',
+            dataType: 'json',
+            success: function(res){
+                if(res.errcode == 0){
+                    if(res.data && res.data.length > 0){
+                        var ihtml = "";
+                        for(var i = 0; i < res.data.length; i++){
+                            ihtml += '<li data-code="' + res.data[i].code + '">' + res.data[i].name + '</li>';
+                        }
+                        $("#u_last_power_selector").find('ul').html(ihtml);
+                        $("#c_last_power_selector").find('ul').html(ihtml);
+
+                        //切换下拉框
+                        $(document).on('click', '.selectWrap li', function(){
+                            var text = $(this).text();
+                            var code = $(this).attr('data-code');
+                            $(this).closest(".selectWrap").find('input').val(text);
+                            $(this).closest(".selectWrap").find('input').attr('data-code', code);
+                        });
+                    }
+                }else{
+                    mytips(res.errmsg);
+                }
+            }
+        });
+
+        // 新增权限
+        $(document).on('click', '#add_new_power', function(){
+            $("#add_new_power_window").show();
+        });
+
+        //编辑权限
+        $(document).on('click', '.edit', function(){
+            var code = $(this).parents('tr').attr('data-code');
+            $.ajax({
+                url: '/index.php/role/get_power_info',
+                type: 'post',
+                data: {
+                    code : code
+                },
+                dataType: 'json',
+                success: function(res){
+                    if(res.errcode == 0){
+                        $("#u_power_code").val(code);
+                        $("#u_last_power_selector").attr('data-code', code).find('li[data-code="'+ res.data.parent_code +'"]').trigger('click');
+                        //名称
+                        $("#u_power_name").val(res.data.name);
+                        //显示
+                        console.log($("#u_power_is_hide").find('.checkBox'));
+                        if(res.data.is_show == '1'){
+                            if($("#u_power_is_hide").find('.checkBox').hasClass('cue')){
+                                console.log('移除cue');
+                                $("#u_power_is_hide").find('.checkBox').removeClass('cue');
+                            }
+                        }else{
+                            if(!$("#u_power_is_hide").find('.checkBox').hasClass('cue')){
+                                console.log('添加cue');
+                                $("#u_power_is_hide").find('.checkBox').addClass('cue');
+                            }
+                        }
+                        //uri
+                        $("#u_power_uri").val(res.data.uri);
+                        //remark
+                        $("#u_power_remark").val(res.data.remark);
+                        //排序
+                        $("#u_power_sort").val(res.data.sort);
+                        //图标
+                        $("#u_power_icon").val(res.data.icon);
+                        //展示
+                        $("#edit_power_window").show();
+                    }
+                }
+            });
+        });
+
+        //删除
+        $(document).on('click', '.del', function(){
+            var $this = $(this);
+            common.confirm('确定删除吗？',function(){
+                var code = $this.closest('tr').attr('data-code');
+                $.ajax({
+                    url: '/index.php/role/drop_power',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {code: code},
+                    success: function(res){
+                        if(res.errcode == 0){
+                            location.href = "power_list.html";
+                        }else{
+                            common.mytips(res.errmsg);
+                        }
+                    }
+                });
+            });
+        });
+
+        // 弹出框删除按钮
+        $(document).on('click', '.popClose', function(){
+            $(this).parents('.winWrap').hide();
+        });
+
+        // 新增权限数据
+        $(document).on('click', '.popSave', function(){
+            var data = {};
+            data.parent_code = $("#c_last_power_selector").find('input').attr('data-code');
+            data.name = $("#c_power_name").val();
+            if($("#c_power_is_hide").find('.checkBox').hasClass('cue')){
+                data.is_show = 0;
+            }else{
+                data.is_show = 1;
+            }
+            data.uri = $("#c_power_uri").val();
+            data.remark = $("#c_power_remark").val();
+            data.sort = $("#c_power_sort").val();
+            $.ajax({
+                url : '/index.php/role/save_power',
+                data : data,
+                dataType : 'json',
+                type : 'post',
+                success : function(res){
+                    if(res.errcode == 0){
+                        $("#add_new_power_window").hide();
+                        location.href = "power_list.html";
+                    }else{
+                        common.mytips(res.errmsg);
+                    }
+                }
+            });
+        });
+
+        // 保存权限数据
+        $(document).on('click', '.popUpdate', function(){
+            var data = {};
+            data.code = $("#u_power_code").val();
+            data.parent_code = $("#u_last_power_selector").find('input').attr('data-code');
+            data.name = $("#u_power_name").val();
+            if($("#u_power_is_hide").find('.checkBox').hasClass('cue')){
+                data.is_show = 0;
+            }else{
+                data.is_show = 1;
+            }
+            data.uri = $("#u_power_uri").val();
+            data.remark = $("#u_power_remark").val();
+            data.sort = $("#u_power_sort").val();
+            data.icon = $("#u_power_icon").val();
+            $.ajax({
+                url : '/index.php/role/update_power',
+                data : data,
+                dataType : 'json',
+                type : 'post',
+                success : function(res){
+                    if(res.errcode == 0){
+                        $("#edit_power_window").hide();
+                        location.href = "power_list.html";
+                    }else{
+                        common.mytips(res.errmsg);
+                    }
+                }
+            });
+        });
+    });
+
+    //获取数据
+    function getData(page){
+        $.ajax({
+            url: '/index.php/role/get_power_list',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                page: page,
+                name: $('#name').val(),
+                creater:$('#creater').val(),
+            },
+            success: function(res){
+                if(res.errcode == 0){
+                    var html = '';
+                    for(var i = 0; i < res.data.length; i++){
+                        html += '<tr class="td-tr" data-code="' + res.data[i].code + '">' +
+                        '<td ' + (res.data[i].is_leaf <= 0 ? 'style="text-align: left; font-size: 15px; "' : '') + '><p>' + res.data[i].name + '</p></td>' +
+                        '<td><p>' + res.data[i].uri + '</p></td>' +
+                        '<td><p>' + res.data[i].create_time + '</p></td>' +
+                        '<td><p>' + res.data[i].uname + '</p></td>' +  
+                        // '<td><p>' + res.data[i].sort + '</p></td>' +
+                        // '<td><p>' + res.data[i].is_show + '</p></td>' +
+                        // '<td><p>' + res.data[i].remark + '</p></td>' +
+                        '<td>' +
+                            '<p class="a-p">' +
+                                '<a href="javascript:;" class="edit">编辑</a>' +
+                                '<a href="javascript:;" class="del">删除</a>' +
+                            '</p>' +
+                        '</td>' +
+                        '</tr>';
+                    }
+                    $("tbody").html(html);
+                    common.pageCtrl( Math.ceil( res.total / 10 ), page );
+                }else{
+                    common.mytips(res.errmsg);
+                }
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

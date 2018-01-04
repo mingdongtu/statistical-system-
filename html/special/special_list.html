@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<title>专题列表</title>
+<link rel="stylesheet" href="/web/public/css/common_h.css">
+<link rel="stylesheet" href="/web/public/css/info.css">
+<link href="/web/public/css/common.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+.optionbox .input_warp { width:210px;}
+.optionbox .select_warp { width:155px;}
+.optionbox .time { width:120px;}
+html .select_warp ul li { line-height:18px; padding:6px 10px;}
+.optionbox .ws1 { width:110px; text-align:right;}
+
+</style>
+</head>
+
+<body>
+
+<div class="main_box">
+     <h2>专题列表</h2>     
+     <div class="optionbox c">
+        <span class="fl fl_margin">查找：</span>
+        <input class="text time fl" id="where" value="" name="" type="text" placeholder="请输入专题关键字" />
+     	<span class="fl ws1 fl_margin" id="time_title">上线时间：</span>
+        <input class="text time fl" id="stime" value="" name="" type="text" onclick="WdatePicker({maxDate:'#F{$dp.$D(\'etime\')}'})" />
+        <span class="fl pl5 pr5">至</span>
+        <input class="text time fl" id="etime" value="" name="" type="text" onclick="WdatePicker({minDate:'#F{$dp.$D(\'stime\')}'})" />
+
+		<a class="button_blue btn120 ml20 fl" href="javascript:;" id="search">查询</a>   
+		<a class="button_green btn120 ml20 fl" href="special_add.html">新增专题</a>  
+     </div>
+    <table id="table" width="100%" border="0" align="center" class="table_box boder_tab mt20" cellpadding="0" cellspacing="0">
+	<thead id="thead_str">
+		<tr >
+        	<th width="12%"><span>|</span>封面</th>
+            <th width="12%"><span>|</span>标题</th>
+            <th width="12%"><span>|</span>启用</th>
+            <th width="12%"><span>|</span>排序</th>
+            <th width="12%"><span>|</span>上线时间</th>
+            <th width="12%"><span>|</span>编辑时间</th>
+            <th width="12%"><span>|</span>编辑人</th>
+            <th width="12%"><span></span>操作</th>
+        </tr>
+    </thead>
+    <tbody id="remind_list">   
+    </tbody>
+</table>
+<div class="page-box">   
+</div>
+</div>
+
+
+
+<script type="text/javascript" src="/web/public/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script type="text/javascript" src="/web/public/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="/web/public/js/jquery_time.js"></script>
+<script type="text/javascript" src="/web/public/js/pagination.js"></script>
+<script type="text/javascript">
+$(function(){	       
+	//加载列表数据
+	var $table = $('#remind_list'),$pagination = $('.page-box'),current_page;
+	get_list();
+	function get_list(page){
+		page = current_page = page || 1;
+		var data = {url:hms_host+'index.php/special/get_list',page:page,rand:Math.random()};
+        data.stime=$.myTime.DateToUnix($('#stime').val());
+        data.etime=$.myTime.DateToUnix($('#etime').val());
+		data.where = $("#where").val();
+		common.ajax(data,function(json){
+
+			if(json.errcode !== 0){
+				common.mytips(json.errmsg);return false;
+			}
+			var html = '';
+			var len = json.data.length;
+			if(len <= 0){
+				html += '<tr><td colspan="8" class="red">暂无数据!</td></tr>';
+			}else{
+				for(var i = 0;i < len;i++){
+					itm = json.data[i];
+					if(itm.is_del == 0){
+                        itm.is_del = "是";
+					}else{
+                        itm.is_del = "否";
+					}
+					html +=
+						'<tr>'+
+						  '<td><img  style="width:30px;height:30px;" src="'+ itm.img_url +'" /></td>'+
+						  '<td title="'+itm.title+'">' + itm.title + '</td>'+
+						  '<td>' + itm.is_del + '</td>'+
+						  '<td>' + itm.sort + '</td>'+
+						  '<td>' + itm.stime+ "~" + itm.etime+ '</td>'+
+						  '<td>' + itm.add_time + '</td>'+
+						  '<td>' + itm.name + '</td>'+
+						  '<td><a  href="special_add.html?id='+itm.id+'" class="green_a edit" data-id="' + itm.id + '">编辑</a> | <a href="javascript:" class="red_a del" data-id="' + itm.id + '">删除</a></td>'+
+						'</tr>';
+				}
+			}
+			$table.html(html);
+			$.pagination.init($pagination, get_list, json.total, 10, page,true);
+		});
+	}
+	
+	//删除
+	$table.on('click','.del',function(){
+		id = $(this).attr('data-id');
+		common.confirm('确定删除吗？',function(){
+			var data = {url:hms_host+'index.php/special/del',id:id,rand:Math.random()};
+			common.ajax(data,function(json){
+				if(json.errcode !== 0){
+					common.mytips(json.errmsg);return false;
+				}
+				get_list();
+			});
+		});
+	});
+	//搜索
+	$('#search').on('click',function(){
+		get_list();
+	});
+        
+});
+</script>
+</body>
+</html>

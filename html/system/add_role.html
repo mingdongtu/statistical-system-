@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="/web/public/css/common.css">
+    <title>填报指标分配</title>
+    <style>
+        body{padding: 24px 20px;background: #f5f5f5;}
+        .selectName{line-height: 44px;float: left;margin-right: 12px;}
+        .selectWrap{float: left;}
+
+        .tableTitleWrap{padding: 32px 0 15px;border-bottom: 1px solid #eee;position: relative;}
+        .tableTitle{font-size: 16px;font-weight: bold;}
+        .titleBtnWrap{position: absolute;right: 0;bottom: 6px;}
+        .checkBoxLabel{line-height: 32px;display: inline-block;cursor: pointer;position: relative;}
+        #addIndex{float: left;width: 88px;line-height: 30px;border: 1px solid #00b2f4;background: #fff;color: #00b2f4;font-size: 14px;text-align: center;border-radius: 3px;margin-left: 20px;}
+        #addIndex:active{background: #ecfaff;}
+        #save{margin-left: 10px;}
+
+        .tableUl>li{font-size: 16px;position: relative;float: left;padding: 5px 0 5px 35px;}
+        .pwrap{padding-bottom: 40px;}
+        .pwrap>li{border-bottom: 1px solid #eee;padding: 15px 0 15px 35px;float: none}
+        .pwrap>li>ul .checkBoxLabel{color: #999;font-size: 14px;}
+        .forHover{position: absolute;width: 100%;height: 62px;top: 0;left: 0;cursor: pointer;}
+        .forHover:hover{background: #f8f8f8;}
+        .itemArrow{width: 21px;height: 21px;background: url(/web/public/images/icon_04.png) no-repeat center;position: absolute;left: 0;top: 20px;}
+        .itemArrow.cue{background: url(/web/public/images/icon_03.png) no-repeat center;}
+        .tableUl .checkBox{margin-top: -4px;}
+
+    </style>
+</head>
+<body>
+<h2>新增角色</h2>
+<div class="main-tab">
+
+    <div class="searchGroup">
+        <div class="popItem">
+            <div class="selectItem">
+                <div class="inputItem" id="roleName">
+                    <span class="selectName">角色名称</span>
+                    <input type="text" id="name" placeholder="请输入角色名称">
+                </div>
+            </div>
+            <div class="selectItem">
+                <div class="inputItem">
+                    <span class="selectName">角色说明</span>
+                    <input type="text" id="remark" placeholder="请输入角色说明">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tableTitleWrap">
+        <p class="tableTitle">权限分配</p>
+        <div class="titleBtnWrap">
+            <p class="checkBoxLabel fl"><i class="checkBox"></i>全选</p>
+            <a id="save" class="blueBtn btn-md" href="javascript:;">保&nbsp;存</a>
+        </div>
+    </div>
+    <ul class="tableUl pwrap"></ul>
+</div>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script>
+    var user = common.getUser();
+    var u_code = common.get_url_param('code');
+    var u_role_name = common.get_url_param('role_name');
+    var u_remark = common.get_url_param('remark');
+
+    $(function(){
+        //判断是否从编辑入口进来的页面
+        if(u_code){
+            $('h2').text('编辑角色');
+            $("#name").val(u_role_name);
+            $("#remark").val(u_remark);
+        }
+
+        //选择复选框
+        $(document).on('click', '.checkBoxLabel', function(){
+            $(this).children('.checkBox').trigger('click');
+        });
+
+        //切换列表
+        $(document).on('click', '.itemArrow', function(){
+            if($(this).hasClass('cue')){
+                $(this).removeClass('cue').nextAll('.tableUl').slideUp();
+            }else{
+                $(this).addClass('cue').nextAll('.tableUl').slideDown();
+            }
+        }).on('click', '.forHover', function(){
+            $(this).next().trigger('click');
+        });
+
+        //切换下拉框
+        $(document).on('click', '.selectWrap li', function(){
+            var text = $(this).text();
+            $(this).closest(".selectWrap").find('input').val(text);
+        });
+
+        //全选
+        $(document).on('click', '.titleBtnWrap .checkBox', function(){
+            if($(this).hasClass('cue')){
+                $(".tableUl").find('.checkBox').addClass('cue');
+            }else{
+                $(".tableUl").find('.checkBox').removeClass('cue');
+            }
+        });
+
+        //表格复选框父子元素联动
+        $(document).on('click', '.tableUl .checkBox', function(){
+            //选择子元素
+            if($(this).hasClass('cue')){
+                $(this).parent().nextAll('.tableUl').find('.checkBox').addClass('cue');
+            }else{
+                $(this).parent().nextAll('.tableUl').find('.checkBox').removeClass('cue');
+            }
+            //选择父元素
+            if($(this).closest('.tableUl').children('li').find('.checkBox.cue').length > 0){
+                $(this).closest('.tableUl').parents('li').children('.checkBoxLabel').children('.checkBox').addClass('cue');
+            }else{
+                $(this).closest('.tableUl').parents('li').each(function(){
+                    if($(this).children('.tableUl').find('.checkBox.cue').length == 0){
+                        $(this).children('.checkBoxLabel').children('.checkBox').removeClass('cue');
+                    }
+                });
+            }
+        });
+
+
+
+        //获取权限分配数据
+        var postData = u_code ? {role_code: u_code} : {};
+        $.ajax({
+            url: '/index.php/role/get_power_data_by_role',
+            type: 'post',
+            dataType: 'json',
+            data: postData,
+            success: function(res){
+                if(res.errcode == 0){
+                    var list = '', j, x;
+                    if(res.data){
+                        for(j in res.data){
+                            list += '<li>' +
+                            // '<div class="forHover"></div>' +
+                            // '<a href="javascript:;" class="itemArrow cue"></a>';// +
+                            '<p class="checkBoxLabel" data-code="' + res.data[j].code + '"><i class="checkBox' + (res.data[j].checked == 1 ? ' cue' : '') + '"></i>' + res.data[j].name + '</p>';
+                            if(res.data[j].children){
+                                list += '<ul class="tableUl">';
+                                for(x in res.data[j].children){
+                                    list += '<li><p class="checkBoxLabel" data-code="' + res.data[j].children[x].code + '"><i class="checkBox' + (res.data[j].children[x].checked == 1 ? ' cue' : '') + '"></i>' + res.data[j].children[x].name + '</p></li>';
+                                }
+                                list += '</ul>';
+                            }
+                            list += '<div class="clear"></div></li>';
+                        }
+                    }
+                    $(".pwrap").html(list);
+                }else{
+                    common.mytips(res.errmsg);
+                }
+            }
+        });
+
+
+        //保存数据
+        $("#save").click(function(){
+            var name = $('#name').val();
+            if(! name){
+                common.mytips('请填写角色名称');
+                return false;
+            }
+            var remark = $("#remark").val();
+            var objs = $('.pwrap').find('.checkBox.cue');
+            var report_list = '';
+            for(var i = 0; i < objs.length; i++){
+                report_list += objs.eq(i).parent().attr('data-code');
+                if(i != objs.length-1) report_list += ',';
+            }
+            var saveData = {
+                name: name,
+                remark: remark,
+                report_list: report_list
+            };
+            var postUrl = '/index.php/role/add';
+            if(u_code){
+                saveData.code = u_code;
+                postUrl = '/index.php/role/update'
+            }
+            $.ajax({
+                url: postUrl,
+                type: 'post',
+                dataType: 'json',
+                data: saveData,
+                success: function(res){
+                    if(res.errcode == 0){
+                        location.replace('role_list.html');
+                    }else{
+                        common.mytips(res.errmsg);
+                    }
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>

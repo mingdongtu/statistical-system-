@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>活动编辑</title>
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<link rel="stylesheet" href="/web/public/css/common_h.css">
+<link rel="stylesheet" href="/web/public/css/info.css">
+<script type="text/javascript" src="/web/public/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+
+</head>
+
+<body>
+
+<div class="forpage" style="min-height: 500px;min-width: 300px">
+     <h2>活动编辑</h2>
+     <div class="info-list c">
+          <div class="info-listl"><span style="color:#ff0000;">*</span>标题：</div>
+          <div class="info-listr">
+              <input name="txtContent" style="width:345px;" id="title" maxlength="64" class="text fl font14 cw500" type="text" />
+          </div>
+     </div>
+     <div class="info-list c" style=" position:relative; z-index:1;">
+          <div class="info-listl" style="line-height:30px;">上传封面：</div>
+          
+          <div class="info-listr" style="margin-top:0px;">
+          
+               <style>
+               #image-queue{ position:absolute; left:0px; top:30px; width:356px;}
+			   .whiteFont{
+				  background-color:red; 
+			    }
+               </style>
+          
+               <div class="upload-title c" style="line-height:30px; padding-bottom:10px; z-index:998; position:relative;">
+               <input type="file" class="file" id="img">
+                    <span class="color9 font14 ml15">(图片大小不超过2MB，大小必须为1126px*480px)</span>                   
+               </div>
+               <div class="upload-pic"><img id="img_path" src="/web/public/images/uploadpic.png" /></div>
+               
+          </div>
+     </div>  
+    <div class="info-list c">
+     	<div class="info-listl">上线时间：</div>
+        <input class="text time fl" style="width: 150px;" id="stime" value="" name="" type="text" onclick="WdatePicker({maxDate:'#F{$dp.$D(\'etime\')}'})" />
+        <span class="fl pl5 pr5" style="padding-top: 10px;">至</span>
+        <input class="text time fl" style="width: 150px;" id="etime" value="" name="" type="text" onclick="WdatePicker({minDate:'#F{$dp.$D(\'stime\')}'})" />
+     </div>
+     <div class="info-list c">
+          <div class="info-listl">专题链接：</div>
+          <div class="info-listr">
+          <input  class="text font14" maxlength="200" style="width:345px;" type="text" id="site_url" />
+         </div>
+     </div>
+     <div class="info-list c">
+          <div class="info-listl">首页排序：</div>
+          <div class="info-listr">
+          <input  class="text font14" maxlength="200" style="width:150px;" type="text" id="sort" />
+          <span class="color9 font14 ml15">(数值越小，排名越靠前)</span>
+         </div>
+     </div>       
+     <div class="info-list c">
+          <div class="info-listl">启用：</div>
+          <div class="info-listr" style="margin-top: 13px;">
+          <label><input name="is_del" type="radio" value="0" />是 </label> 
+		  <label><input name="is_del" type="radio" value="1" />否 </label> 
+         </div>
+     </div> 
+     <div class="info-list c pt20">
+          <div class="info-listl">&nbsp;</div>
+          <div class="info-listr" >
+               <a id="send" class="button_green btn120" href="javascript:;">保存</a>
+               <a id="cancle" class="button_gray btn120 ml20" href="javascript:;">取消</a>
+          </div>
+     </div>
+</div>
+
+          
+
+<script type="text/javascript" language="javascript">
+var user = common.getUser();
+var id = common.get_url_param('id');
+if(id){
+	$.post(hms_host+'index.php/activity/get_activity_detail',{'id':id},function(json){
+	     if(json.errcode==0){	  
+		    var data=json.data;
+			$("#title").val(data.title);
+ 			$("#img_path").attr('src',data.img_url);
+ 			$("#stime").val(data.stime);
+ 			$("#etime").val(data.etime);
+ 			$("#site_url").val(data.web_url);
+ 			$("#sort").val(data.sort);		
+ 			$("input[type='radio'][value='"+ data.is_del +"']").attr("checked",true);	 
+		 }
+	},'json')
+}
+$(function(){
+	document.getElementById('img').onchange = function(evt){
+        common.upload_img({ ImgPre: "img_path", width: 1126, height: 480,type:1 },evt);
+    };
+	//确认保存
+	var $send = $('#send');	
+	$send.on('click',function(){
+		check(add);
+	});
+	
+	var $title = $('#title');
+	var $img_path = $('#img_path');
+	var $stime = $('#stime');
+	var $etime = $('#etime');
+	var $site_url = $('#site_url');
+	var $sort = $('#sort');
+	function check(callback){
+		var data = {rand:Math.random()};
+		if(id != null){
+			data.id = id;
+		}
+		data.title = $.trim($title.val());
+		data.img_url = $.trim($img_path.attr('src'));
+		data.online_stime = $.trim($stime.val());
+		data.online_etime = $.trim($etime.val());
+		data.web_url = $.trim($site_url.val());
+		data.sort = $.trim($sort.val());
+		data.is_del =  $("input[type='radio']:checked").val();
+		if(data.title == ''){
+			common.mytips('标题不能为空');$title.focus();return false;
+		}	
+		if(!data.img_url || data.img_url == '/web/public/images/uploadpic.png'){
+			common.mytips('请选择发送的图片');return false;
+		}
+
+		data.url = id ? hms_host+'index.php/activity/edit' : hms_host+'index.php/activity/add';
+		callback && callback(data);
+	}
+	function add(data){
+		 common.ajax(data,function(json){
+			if(json.errcode !== 0){
+				common.mytips(json.errmsg);
+				return false;
+			}
+			window.location.href = 'activity_list.html';
+		});
+	}
+	//取消
+	$('#cancle').on('click',function(){
+		window.location.href = 'activity_list.html';
+	});
+       
+});
+</script>
+</body>
+</html>

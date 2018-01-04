@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="/web/public/css/common.css">
+    <title>登录</title>
+    <style>
+        /*body{background: url(/web/public/images/login-bg.jpg) no-repeat center top;}*/
+
+        .main{width: 100%;margin: 0px auto;height:770px;
+            position: relative;
+          background: url(../public/images/back.png) no-repeat center center ;
+        }
+        h1{color: #fff;font-size: 32px;padding-top: 28px;}
+        .wrap{width: 590px;height:373px;background: #fff;margin: -14px auto 0;border-radius: 5px;padding-top:27px;}
+        h2{margin: 0 auto;text-align: center;font-size:36px;border: none;line-height: 1.5;
+          color:#fff;padding-top:170px;padding-bottom:38px;
+            font-weight:lighter ;
+            /*position:absolute;*/
+            /*z-index:1000;*/
+        }
+        .formWrap{width: 504px;padding-bottom: 72px;position:relative;}
+        .input-p{line-height: 44px;margin-bottom: 25px;}
+        .formWrap label{border: 1px solid #d7d7d7;border-radius: 3px;display: inline-block;width:345px;cursor: text;
+            position: relative;
+        }
+        .formWrap label.cue{border-color: #00b2f4;}
+        .formWrap label.err{border-color: #ff6161;}
+        .formWrap span{display: inline-block;width: 143px;margin-left: 14px;color: #999;text-align:right;font-size:16px;}
+        .formWrap input{width: 260px;border: none;outline: none; background:#fff;}
+        #codeLebel{width: 345px;}
+        #code{width: 90px;}
+        #codeImg{width: 170px;height: 46px;}
+        #changCode{padding-right: 22px;font-size: 16px;color: #989797;float: right;}
+        #errTips{
+            height: 20px;
+            color: #ff6161;
+            text-align: center;  position:absolute;left: 192px;
+            top: 190px;}
+        #submit{display: block;background: #63b841;text-align: center;color: #fff;line-height: 50px;
+            font-size: 24px;border-radius: 5px;margin-top: 20px;
+            width:341px;height:52px;
+            margin-left:156px;
+        }
+        #submit:active{background: #00a9e7;}
+        .logo_area{
+            width:100%;
+            position: relative;
+            height:155px;
+        }
+        .logo_area>img{
+            width:188px;
+            height:50px;
+            position:absolute;
+            left:50%;
+            margin-left:-94px;
+            top:50%;
+            margin-top:-25px;
+        }
+        .back_img{
+            position: absolute;
+
+            width:100%;
+            top: -145px;
+            left: 1px;
+        }
+        .person{
+            width:20px;
+            height:22px;
+            display:inline-block;
+            position: absolute;
+            top:50%;
+            margin-top:-11px;
+           left:13px;
+        }
+        #username,#psword,#code{
+            margin-left:45px;
+        }
+        .code{
+            width:16px;height:20px;
+
+            display:inline-block;
+            position: absolute;
+            top:50%;
+            margin-top:-11px;
+            left:13px;
+        }
+        .lock{
+            width:17px;
+            height:21px;
+            display:inline-block;
+            position: absolute;
+            top:50%;
+            margin-top:-11px;
+            left:13px;
+        }
+        input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
+            background-color: #fff;
+            background-image: none;
+            color: rgb(0, 0, 0);
+        }
+        .input-p_1{position:relative;}
+        .my_welcome{
+            width:218px;
+            position:absolute;
+            left:50%;
+            top:113px;
+            margin-left:-102px;
+            font-size:32px;
+            color:#fff;
+            font-weight:lighter;
+
+        }
+    </style>
+</head>
+<body>
+<!--logo区域-->
+<div class="logo_area">
+    <img src="../public/images/logo.png" alt="">
+</div>
+<div class="main"  >
+    <!--背景图片-->
+    <!--<img src="../public/images/back.png" alt="" class="back_img">-->
+    <!--<h1>赢医通集团</h1>-->
+    <p class="my_welcome">WELCOME</p>
+    <h2 >友德医用户端后台管理系统</h2>
+    <div class="wrap">
+
+        <div class="formWrap">
+            <p class="input-p"><span>用户名：</span><label><img src="../public/images/person.png" alt=""  class="person"><input type="text" id="username" maxlength="20" autocomplete="off"></label></p>
+            <p class="input-p"><span>用户密码：</span><label><img src="../public/images/lock.png" alt=""  class="lock"><input type="password" id="psword" maxlength="20"></label></p>
+            <p class="input-p input-p_1"><span>请输入验证码：</span><label id="codeLebel"><img src="../public/images/code.png" alt=""  class="code"><input type="text" id="code" maxlength="4" autocomplete="off"></label>
+
+            </p>
+            <div id="errTips"></div>
+            <p class="input-p">
+                <span>验证图片：</span>
+                <img id="codeImg" src="/index.php/home/get_vcode">
+                <a id="changCode" href="javascript:;">看不清楚？换张图片</a>
+            </p>
+
+            <a id="submit" href="javascript:;">登&nbsp;&nbsp录</a>
+        </div>
+    </div>
+</div>
+
+<!--js-->
+<script type="text/javascript" src="/web/public/js/lib/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/web/public/js/app/common.js"></script>
+<script type="text/javascript" src="/web/public/js/lib/gibberish-aes.js"></script>
+<script>
+    $(function(){
+//        alert(111)
+        //input获取（失去）焦点样式
+        $('input').focus(function(){
+            $(this).parent().addClass('cue');
+            $('.err').removeClass('err');
+            $('#errTips').empty();
+        }).blur(function(){
+            $(this).parent().removeClass('cue');
+        });
+        //输入框回车事件
+        $('#username,#psword').keyup(function(e){
+            if(e.keyCode == 13){
+                $(this).parents('.input-p').next().find('input').trigger('select');
+            }
+        });
+        $("#codeLebel").keyup(function(e){
+            if(e.keyCode == 13){
+                $('#submit').trigger('click');
+            }
+        });
+
+        //登录
+        $('#submit').click(function(){
+            var mobile = $("#username").val();
+            var password = $("#psword").val();
+            var vcode = $("#code").val();
+            if(! mobile){
+                $("#errTips").text('请输入账号');
+                return false;
+            }
+            if(! password){
+                $("#errTips").text('请输入密码');
+                return false;
+            }
+            if(! vcode){
+                $("#errTips").text('请输入验证码');
+                return false;
+            }
+            $.ajax({
+                url: '/index.php/admin/login',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    mobile: AES_Encode(mobile),
+                    password: AES_Encode(password),
+                    vcode: vcode
+                },
+                success: function(res){
+                    if(res.errcode == 0){
+                        sessionStorage.name = res.data.name;
+                        sessionStorage.id = res.data.id;
+                        sessionStorage.role_name = res.data.role_name;
+                        location.href = '/web/html/center.html'
+                    }else{
+                        $("#errTips").text(res.errmsg);
+                    }
+                }
+            });
+        });
+
+        //更换验证码
+        $("#changCode").click(function(){
+            $("#codeImg").attr('src', '/index.php/home/get_vcode?dt=' + new Date().getTime());
+        });
+    });
+
+    function AES_Encode(plain_text) {
+        GibberishAES.size(256);
+        return GibberishAES.aesEncrypt(plain_text, config.aesKey);
+    }
+    function AES_Decode(base64_text) {
+        GibberishAES.size(256);
+        return GibberishAES.aesDecrypt(base64_text, config.aesKey);
+    }
+</script>
+</body>
+</html>
